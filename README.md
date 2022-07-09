@@ -3,7 +3,10 @@ Challenge to play with WebXR
 
 
 using 
-nodejs 16.6.2
+nodejs 16.16.0
 
-with react
+with react, react-bootstrap 2.4.0, bootstrap 5.1.6
 
+
+--
+npx 
