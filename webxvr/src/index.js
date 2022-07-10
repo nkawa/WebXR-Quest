@@ -7,6 +7,7 @@ import Main from './pages/Main';
 import Info from './pages/Info';
 import VRpage from './pages/VRpage';
 import AutoVR from './pages/AutoVR';
+import VideoVR from './pages/flatVideoVR';
 import SkywayClient from   './pages/SkywayClient';
 import SkywayReceive from   './pages/SkywayReceive';
 import AutoReceive from   './pages/AutoReceive';
@@ -20,6 +21,7 @@ root.render(
       <Route path="/info" element={<Info />} />
       <Route path="/autovr" element={<AutoVR />} /> 
       <Route path="/vr" element={<VRpage />} /> 
+      <Route path="/flatVideo" element={<VideoVR />} /> 
       <Route path="/skyway" element={<SkywayClient />} />
       <Route path="/swrecv" element={<SkywayReceive />} />
       <Route path="/autorecv" element={<AutoReceive />} />

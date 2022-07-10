@@ -3,7 +3,7 @@ import { WebXRButton } from '../vendor/util/webxr-button';
 import { Scene, WebXRView } from '../vendor/render/scenes/scene';
 import { Renderer, createWebGLContext } from '../vendor/render/core/renderer';
 //import {Gltf2Node} from '../vendor/render/nodes/gltf2.js';
-import { SkyboxNode } from '../vendor/render/nodes/skybox';
+import { VideoboxNode } from '../vendor/render/nodes/videobox';
 import { InlineViewerHelper } from '../vendor/util/inline-viewer-helper';
 
 import { VideoNode } from '../vendor/render/nodes/video';
@@ -77,20 +77,21 @@ export default (props) => {
   let gl = null;
   let renderer = null;
   const scene = new Scene();
-//  scene.addNode(new SkyboxNode({
-//    url: 'media/chess-pano-4k.png',
-//    displayMode: 'stereoTopBottom'
-//  }));
 
-  
   const metapoVideo = document.createElement('video');
   metapoVideo.loop = true;
   metapoVideo.src = 'media/preview.mp4';
   metapoVideo.autoplay= true;
-  scene.addNode(new VideoNode({
-    video: metapoVideo
+  
+  scene.addNode(new VideoboxNode({
+    video: metapoVideo,
+//    displayMode: 'stereoTopBottom'
   }));
 
+/*  scene.addNode(new VideoNode({
+    video: metapoVideo
+  }));
+*/
   const [Mem, SetMem] = useState(null);
   console.log("re-rendar:autoecv:" );
 
@@ -149,9 +150,10 @@ export default (props) => {
             subscription.publication.publisher.id
           );
           newVideo.autoplay = true;
+          newVideo.url = "web-rtc-video";
           stream.attach(newVideo);
 
-          scene.addNode(new VideoNode({
+          scene.addNode(new VideoboxNode({
             video:newVideo
           }));
 
@@ -245,8 +247,8 @@ export default (props) => {
 
       navigator.xr.requestSession('inline').then(onSessionStarted);
     }
-    const remoteVideos = document.getElementById('js-remote-streams');
-    remoteVideos.append(metapoVideo);
+//    const remoteVideos = document.getElementById('js-remote-streams');
+//    remoteVideos.append(metapoVideo);
 //    document.querySelector('header').appendChild(metapoVideo);
 
 

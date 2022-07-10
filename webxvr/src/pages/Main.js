@@ -8,7 +8,9 @@ export default (props)=>{
 return (
     <>
     <TopNavi />
-    Main Contents!
+
+    ようこそ Web XVR の世界へ！
+
     </>
 );
 };
