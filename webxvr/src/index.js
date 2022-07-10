@@ -16,7 +16,7 @@ root.render(
       <Route path="/" element={<Main />} />
       <Route path="/home" element={<Main />} />
       <Route path="/info" element={<Info />} />
-      <Route path="/vr" element={<VRpage />} />
+      <Route path="/vr" element={<VRpage />} /> 
       <Route path="/skyway" element={<SkywayClient />} />
       <Route path="/swrecv" element={<SkywayReceive />} />
     </Routes>
