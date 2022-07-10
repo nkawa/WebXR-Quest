@@ -158,7 +158,7 @@ export default (props)=>{
             <header>
                 <details open>
                     <summary> VR Page</summary>
-                    Enjoy VR view!  <a class="back" href="./">Back</a>
+                    Enjoy VR view!  <a className="back" href="./">Back</a>
                 </details>
 
             </header>

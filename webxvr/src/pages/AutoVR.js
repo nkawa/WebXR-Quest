@@ -70,15 +70,25 @@ const tokenString = webxvrToken.encode(secretKey);
 
 export default (props) => {
   // XR globals.
+
   let xrButton = null;
   let xrImmersiveRefSpace = null;
   let inlineViewerHelper = null;
   let gl = null;
   let renderer = null;
-  let scene = new Scene();
-  scene.addNode(new SkyboxNode({
-    url: 'media/chess-pano-4k.png',
-    displayMode: 'stereoTopBottom'
+  const scene = new Scene();
+//  scene.addNode(new SkyboxNode({
+//    url: 'media/chess-pano-4k.png',
+//    displayMode: 'stereoTopBottom'
+//  }));
+
+  
+  const metapoVideo = document.createElement('video');
+  metapoVideo.loop = true;
+  metapoVideo.src = 'media/preview.mp4';
+  metapoVideo.autoplay= true;
+  scene.addNode(new VideoNode({
+    video: metapoVideo
   }));
 
   const [Mem, SetMem] = useState(null);
@@ -88,25 +98,18 @@ export default (props) => {
     console.log("AddStatus:"+st);
   }, []);
 
-
-  useEffect(() => {
-    doit();
-    return (() => {
-      console.log("Leave AutoVR",Mem);
-//      Mem.leave();
-    });
-  }, []);
+  const [userVideo,setUserVideo] = useState({});
 
 
-  async function doit() {
+   async function doit() {
     //        const joinTrigger = document.getElementById('js-join-trigger');
     //        const leaveTrigger = document.getElementById('js-leave-trigger');
     //        const roomId = document.getElementById('js-room-id');
 
-    const remoteVideos = document.getElementById('js-remote-streams');
+//    const remoteVideos = document.getElementById('js-remote-streams');
     const roomId = "uclab-xvr";
 
-    console.log("doit:swrecv", remoteVideos);
+  //  console.log("doit:swrecv", remoteVideos);
 
     const context = await SkyWayContext.Create(tokenString, {
       logLevel: 'debug',
@@ -128,7 +131,6 @@ export default (props) => {
         bot = await plugin.createBot(channel);
       }
 
-      const userVideo = {};
 
       member.onStreamSubscribed.add(async ({ stream, subscription }) => {
         const publisherId = subscription.publication.origin.publisher.id;
@@ -140,10 +142,6 @@ export default (props) => {
 
         if (!userVideo[publisherId]) {// 新しいビデオ！
           const newVideo = document.createElement('video');
-          scene.addNode(new VideoNode({
-            video:newVideo
-          }));
-        
           newVideo.playsInline = true;
           // mark peerId to find it later at peerLeave event
           newVideo.setAttribute(
@@ -151,15 +149,24 @@ export default (props) => {
             subscription.publication.publisher.id
           );
           newVideo.autoplay = true;
+          stream.attach(newVideo);
+
+          scene.addNode(new VideoNode({
+            video:newVideo
+          }));
+
+        
           // ここで、エレメントを Scene に追加したい！
-          remoteVideos.append(newVideo);
+//          remoteVideos.append(newVideo);
 
           console.log("Appending!", newVideo);
-          userVideo[publisherId] = newVideo;
+//          userVideo[publisherId] = newVideo;
+          const nn={};
+          nn[publisherId]=newVideo;
+          setUserVideo(nn)
         }
 
-        const newVideo = userVideo[publisherId];
-        stream.attach(newVideo);
+//        const newVideo = userVideo[publisherId];
       });
       const subscribe = async (publication) => {
 
@@ -182,26 +189,27 @@ export default (props) => {
         addStatus("OnMemberLeft!")
 
         if (e.member.id === member.id) return;
-        const remoteVideos = document.getElementById('js-remote-streams');
+//        const remoteVideos = document.getElementById('js-remote-streams');
 
-        const remoteVideo = remoteVideos.querySelector(
-          `[data-member-id="${e.member.id}"]`
-        );
-        if (remoteVideo) {
-          const stream = remoteVideo.srcObject;
-          if (stream) {
-            stream.getTracks().forEach((track) => track.stop());
-          }
-          remoteVideo.srcObject = null;
-          remoteVideo.remove();
-        } else {
-          console.log("remove");
-          remoteVideos.innerHTML = null;
-        }
+ //       const remoteVideo = remoteVideos.querySelector(
+ //         `[data-member-id="${e.member.id}"]`
+ //       );
+//        if (remoteVideo) {
+//          const stream = remoteVideo.srcObject;
+//          if (stream) {
+ //           stream.getTracks().forEach((track) => track.stop());
+ //         }
+  //        remoteVideo.srcObject = null;
+  //        remoteVideo.remove();
+  //      } else {
+  //        console.log("remove");
+  //        remoteVideos.innerHTML = null;
+  //      }
+          console.log("should stop remote video");
       });
 
       member.onLeft.once(() => {
-        Array.from(remoteVideos.children).forEach((element) => {
+/*        Array.from(remoteVideos.children).forEach((element) => {
           const remoteVideo = element;
           const stream = remoteVideo.srcObject;
           if (stream) {
@@ -210,13 +218,15 @@ export default (props) => {
           remoteVideo.srcObject = null;
           remoteVideo.remove();
         });
+        */
         channel.dispose();
       });
 
     };
 
     // timer
-    startListen();
+
+    await startListen();
 
   }
 
@@ -235,6 +245,8 @@ export default (props) => {
 
       navigator.xr.requestSession('inline').then(onSessionStarted);
     }
+
+    document.querySelector('header').appendChild(metapoVideo);
 
 
   }
@@ -337,17 +349,21 @@ export default (props) => {
     scene.endFrame();
   }
   useEffect(() => {
+    console.log("Set Skyway");
+    doit();
     console.log("VR page loaded");
     initXR();
+    return (() => {
+      console.log("Leave AutoVR",Mem);
+//      Mem.leave();
+    });
   }, []);
-
-
   return (
     <>
       <header>
         <details open>
           <summary> VR Page</summary>
-          Enjoy VR view!  <a href="./" className="back"> Back</a>
+          Enjoy VR view!!  <a href="./" className="back"> Back</a>
         </details>
 
       </header>

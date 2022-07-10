@@ -18,8 +18,8 @@ root.render(
       <Route path="/" element={<Main />} />
       <Route path="/home" element={<Main />} />
       <Route path="/info" element={<Info />} />
-      <Route path="/autovr" element={<VRpage />} /> 
-      <Route path="/vr" element={<AutoVR />} /> 
+      <Route path="/autovr" element={<AutoVR />} /> 
+      <Route path="/vr" element={<VRpage />} /> 
       <Route path="/skyway" element={<SkywayClient />} />
       <Route path="/swrecv" element={<SkywayReceive />} />
       <Route path="/autorecv" element={<AutoReceive />} />
