@@ -77,7 +77,9 @@ export default (props) => {
     useEffect(() => {
         doit();
         return (() => {
-            Mem.leave();
+            console.log("Leave AutoReceive",Mem);
+
+//            Mem.leave();
         });
     }, []);
 
