@@ -11,7 +11,6 @@ canvas {
     touch-action: none;
 }
 
-
 header {
     position: relative;
     z-index: 2;
@@ -22,32 +21,38 @@ header {
     background-color: rgba(255, 255, 255, 0.90);
     margin-bottom: 0.5em;
     border-radius: 2px;
-  }
-  
-  details summary {
+}
+
+details summary {
     font-size: 1.0em;
     font-weight: bold;
-  }
-  
-  details[open] summary {
+}
+
+details[open] summary {
     font-size: 1.4em;
     font-weight: bold;
-  }
+}
 
-  .back {
+.back {
     float: right;
     text-decoration: none;
-  }
-  .back:hover {
+}
+
+.back:hover {
     text-decoration: underline;
-  }
-  
-  .back::before {
+}
+
+.back::before {
     display: inline-block;
     content: attr(data-index) '<';
     font-weight: bold;
     white-space: nowrap;
     margin-right: 0.2em;
     margin-left: 0.2em;
-  }
-  
+}
+
+#js-remote-streams {
+    position: absolute;
+    right: 0px;
+    bottom: 0px;
+}

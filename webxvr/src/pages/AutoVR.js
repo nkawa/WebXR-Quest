@@ -245,8 +245,9 @@ export default (props) => {
 
       navigator.xr.requestSession('inline').then(onSessionStarted);
     }
-
-    document.querySelector('header').appendChild(metapoVideo);
+    const remoteVideos = document.getElementById('js-remote-streams');
+    remoteVideos.append(metapoVideo);
+//    document.querySelector('header').appendChild(metapoVideo);
 
 
   }
@@ -367,6 +368,7 @@ export default (props) => {
         </details>
 
       </header>
+      <div id="js-remote-streams"></div>
     </>
   );
 };
