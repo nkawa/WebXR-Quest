@@ -69,11 +69,16 @@ async function doit() {
     const { audio, video } =
         await SkyWayMediaDevices.createMicrophoneAudioAndCameraStream();
 
+    
     localVideo.muted = true;
     localVideo.playsInline = true;
-    video.attach(localVideo);
+    if (video != null){
+        video.attach(localVideo);
+        await localVideo.play().catch(console.error);
+    }else{
+        localVideo.innerText="No video";
+    }
 
-    await localVideo.play().catch(console.error);
 
     const context = await SkyWayContext.Create(tokenString, {
         logLevel: 'debug',
