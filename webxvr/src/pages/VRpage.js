@@ -39,13 +39,15 @@ export default (props)=>{
         });
         document.querySelector('header').appendChild(xrButton.domElement);
 
-        if (navigator.xr) {
+        if (navigator.xr ) {
           navigator.xr.isSessionSupported('immersive-vr').then((supported) => {
             xrButton.enabled = supported;
           });
 
           navigator.xr.requestSession('inline').then(onSessionStarted);
         }
+
+    
       }
 
       function initGL() {
@@ -154,6 +156,10 @@ export default (props)=>{
     return (
         <>
             <header>
+                <details open>
+                    <summary> VR Page</summary>
+                    Enjoy VR view!  <a class="back" href="./">Back</a>
+                </details>
 
             </header>
         </>
