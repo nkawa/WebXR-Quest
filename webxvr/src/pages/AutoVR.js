@@ -76,8 +76,9 @@ export default (props) => {
   let inlineViewerHelper = null;
   let gl = null;
   let renderer = null;
+  let newVideo = null;
   const scene = new Scene();
-
+/*
   const metapoVideo = document.createElement('video');
   metapoVideo.loop = true;
   metapoVideo.src = 'media/preview.mp4';
@@ -87,6 +88,7 @@ export default (props) => {
     video: metapoVideo,
 //    displayMode: 'stereoTopBottom'
   }));
+*/
 
 /*  scene.addNode(new VideoNode({
     video: metapoVideo
@@ -142,7 +144,7 @@ export default (props) => {
         }
 
         if (!userVideo[publisherId]) {// 新しいビデオ！
-          const newVideo = document.createElement('video');
+          newVideo = document.createElement('video');
           newVideo.playsInline = true;
           // mark peerId to find it later at peerLeave event
           newVideo.setAttribute(
@@ -152,17 +154,18 @@ export default (props) => {
           newVideo.autoplay = true;
           newVideo.url = "web-rtc-video";
           stream.attach(newVideo);
+          // VR mode じゃない場合は
+          const remoteVideos = document.getElementById('js-remote-streams');
+          newVideo.setAttribute("width",""+window.innerWidth);
+          newVideo.setAttribute("height",""+window.innerHeight);
 
+          // ここで、エレメントを Scene に追加したい！
+          remoteVideos.append(newVideo);
           scene.addNode(new VideoboxNode({
             video:newVideo
           }));
-
-        
-          // ここで、エレメントを Scene に追加したい！
-//          remoteVideos.append(newVideo);
-
+   
           console.log("Appending!", newVideo);
-//          userVideo[publisherId] = newVideo;
           const nn={};
           nn[publisherId]=newVideo;
           setUserVideo(nn)
@@ -266,6 +269,11 @@ export default (props) => {
     function onResize() {
       gl.canvas.width = gl.canvas.clientWidth * window.devicePixelRatio;
       gl.canvas.height = gl.canvas.clientHeight * window.devicePixelRatio;
+        // for video
+        if (newVideo){
+        newVideo.setAttribute("width",""+window.innerWidth);
+        newVideo.setAttribute("height",""+window.innerHeight);
+        }
     }
     window.addEventListener('resize', onResize);
     onResize();
@@ -374,5 +382,4 @@ export default (props) => {
     </>
   );
 };
-
 
