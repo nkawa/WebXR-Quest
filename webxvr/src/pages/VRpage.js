@@ -56,7 +56,6 @@ export default (props)=>{
           xrCompatible: true
         });
         document.body.appendChild(gl.canvas);
-        initXR(); 
 
         function onResize() {
           gl.canvas.width = gl.canvas.clientWidth * window.devicePixelRatio;
@@ -148,7 +147,7 @@ export default (props)=>{
       }
     useEffect(()=>{
         console.log("VR page loaded");
-       
+       initXR();
     },[]);
 
 
