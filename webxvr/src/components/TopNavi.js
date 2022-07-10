@@ -2,7 +2,7 @@ import { Container, Nav, Navbar } from 'react-bootstrap';
 
 export default (props) => {
     return (
-            <Navbar bg="dark" variant="dark" expand="lg">
+            <Navbar bg="dark" variant="dark" expand="md">
             <Container>
             <Navbar.Brand href="/#/home"> WebXVR </Navbar.Brand>
             <Navbar.Toggle aria-controls="basic-navbar-nav" />
@@ -12,6 +12,7 @@ export default (props) => {
                     <Nav.Link href="/#/info"> Info </Nav.Link>
                     <Nav.Link href="/#/vr"> VR </Nav.Link>
                     <Nav.Link href="/#/skyway"> Skyway </Nav.Link>
+                    <Nav.Link href="/#/swrecv"> Recv </Nav.Link>
                 </Nav>
             </Navbar.Collapse>
             </Container>

@@ -7,6 +7,7 @@ import Main from './pages/Main';
 import Info from './pages/Info';
 import VRpage from './pages/VRpage';
 import SkywayClient from   './pages/SkywayClient';
+import SkywayReceive from   './pages/SkywayReceive';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
@@ -17,6 +18,7 @@ root.render(
       <Route path="/info" element={<Info />} />
       <Route path="/vr" element={<VRpage />} />
       <Route path="/skyway" element={<SkywayClient />} />
+      <Route path="/swrecv" element={<SkywayReceive />} />
     </Routes>
   </HashRouter>
 );

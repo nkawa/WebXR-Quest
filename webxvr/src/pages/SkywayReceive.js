@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
-import { Container, Row, Col, Form, Button } from 'react-bootstrap';
+import { Container, Row, Col } from 'react-bootstrap';
 
 import {
     SkyWayChannel,
@@ -10,7 +10,6 @@ import {
     SkyWayMediaDevices,
     uuidV4,
     LocalVideoStream,
-    MemberImpl,
 } from '@skyway-sdk/core';
 
 import { SfuBotMember, SfuClientPlugin } from '@skyway-sdk/sfu-client';
@@ -65,13 +64,7 @@ const tokenString = webxvrToken.encode(secretKey);
 
 export default (props) => {
     const [videoStatus, setVideoStatus] = useState("None");
-    const [Cam, setCam] = useState("None");
-    const [CamList, setCamList] = useState([]);
-    const [CamRawList, setCamRawList] = useState([]);
-    const [Chan, SetChan] = useState({});
-    const [Mem, SetMem] = useState({});
-
-    console.log("re-rendar:SkywayClient");
+    console.log("re-rendar:swrecv:" + videoStatus);
 
     const addStatus = useCallback((st) => {
         const ss = videoStatus + "\n" + st;
@@ -79,137 +72,39 @@ export default (props) => {
         setVideoStatus(ss);
     }, [videoStatus]);
 
-    const changeForm = useCallback((e) => {
-        console.log("OnChange Select:", e.target.value, Cam);
-        setCam(e.target.value);
-    }, [Cam]);
-
-
-    async function doVideo(media) {
-        //        console.log(media);
-        //        const capabi = media.getCapabilities();
-        //        console.log(capabi);
-
-        const localVideo = document.getElementById('js-local-stream');
-
-        const capabi = {
-            deviceId: {
-                exact: media.id
-            }
-        };
-
-        const video = await SkyWayMediaDevices.createCameraVideoStream(capabi);
-        console.log(video);
-        video.attach(localVideo);
-        localVideo.play().catch(console.error);
-        addStatus("Working!");
-
-        {
-            console.log("CHan is",Chan);
-            let bot = Chan.bots.find((b) => b.subtype === SfuBotMember.subtype);
-            if (!bot) {
-                bot = await plugin.createBot(Chan);
-            }
-            const publication = await Mem.publish(video);
-            await bot.startForwarding(publication);
-            addStatus("Do Forward!");
-        }
-    }
-
-
-    const startCam = useCallback((e) => {
-        //        console.log("Checking", Cam);
-        const media = CamRawList[CamList.indexOf(Cam)];
-        //        console.log("StartMedia", media,CamList, Cam, CamList.indexOf(Cam));
-        doVideo(media);
-        console.log("in stat", Chan);
-
-
-    }, [Cam, CamList, CamRawList,Chan, Mem]);
-
-    const plugin = new SfuClientPlugin();
-
-
-
 
     useEffect(() => {
         doit();
     }, []);
 
     async function doit() {
-        const localVideo = document.getElementById('js-local-stream');
         const joinTrigger = document.getElementById('js-join-trigger');
         const leaveTrigger = document.getElementById('js-leave-trigger');
         const remoteVideos = document.getElementById('js-remote-streams');
         const roomId = document.getElementById('js-room-id');
 
+        console.log("doit:swrecv", remoteVideos);
 
         const context = await SkyWayContext.Create(tokenString, {
             logLevel: 'debug',
         });
+        const plugin = new SfuClientPlugin();
         context.registerPlugin(plugin);
-
-        console.log("doit work:SkywayClient");
-        // 今回はビデオだけでOKなんだけど。
-        //        const { audio, video } =
-        //            await SkyWayMediaDevices.createMicrophoneAudioAndCameraStream();
-
-        //        const devs0 = await SkyWayMediaDevices.enumerateDevices();
-        //        console.log("EnumVideos", devs0);
-        //        const displayStream = await navigator.mediaDevices.getDisplayMedia();
-        //        console.log("dipStr",displayStream);
-        //        const userStream = await navigator.mediaDevices.getUserMedia({video:true});
-        //        console.log("usrStr",userStream);
-        //        const displayTracks = userStream.getVideoTracks();
-        //        console.log("dipTrk",displayTracks);
-
-
-
-
-        // カメラ一覧を取得
-        const devs = await SkyWayMediaDevices.enumerateInputVideoDevices();
-        console.log("VideoDevs", devs);
-        const cm = [];
-        devs.map((md) => {
-            cm.push(md.label);
-        })
-        setCamList(cm);
-        setCam(cm[0]);
-        setCamRawList(devs);
-        //        setCam(cm[0]);
-
-        //        console.log("Videos", devs);
-
-        //      const { audio, video } =
-        //            await SkyWayMediaDevices.createMicrophoneAudioAndCameraStream();
-
-        localVideo.muted = true;
-        localVideo.playsInline = true;
-        /*
-        if (navigator.userAgent.indexOf("OculusBrowser") <= 0) {
-            video.attach(localVideo);
-            await localVideo.play().catch(console.error);
-            addStatus("Working!");
-        } else {
-            localVideo.innerText = "No video";
-
-        }
-        */
-
 
 
         // Register join handler
-
         joinTrigger.addEventListener('click', async () => {
-            addStatus("Joining!");
+            addStatus("Joining!" + roomId.value);
             const channel = await SkyWayChannel.FindOrCreate(context, {
                 name: roomId.value,
             });
-            SetChan(channel);
-            console.log("Chan!", channel);
-
             const member = await channel.join({});
-            SetMem(member);
+            addStatus("Joined" + roomId.value);
+
+            let bot = channel.bots.find((b) => b.subtype === SfuBotMember.subtype);
+            if (!bot) {
+                bot = await plugin.createBot(channel);
+            }
 
             const userVideo = {};
 
@@ -245,8 +140,8 @@ export default (props) => {
                     userVideo[publisherId] = newVideo;
                 }
 
-                //                const newVideo = userVideo[publisherId];
-                //                stream.attach(newVideo);
+                const newVideo = userVideo[publisherId];
+                stream.attach(newVideo);
             });
             const subscribe = async (publication) => {
 
@@ -264,19 +159,6 @@ export default (props) => {
 
                 await subscribe(p);
             });
-            // if video is set!
-            /*
-                        {
-                            const publication = await member.publish(video);
-                            await bot.startForwarding(publication);
-                        }
-                        */
-
-            /*            {
-                            const publication = await member.publish(audio);
-                            await bot.startForwarding(publication);
-                        }
-              */
 
             channel.onMemberLeft.add((e) => {
                 addStatus("OnMemberLeft!")
@@ -314,36 +196,15 @@ export default (props) => {
                     once: true,
                 }
             );
-
         });
-
-
     }
+
 
     return (
 
         <>
             <TopNavi />
-            <Container>
-                <Row>
-                    <Col xs={12} md={6}>
-                        <Form.Select id="cam" value={Cam} onChange={changeForm} >
-                            {CamList.map(c =>
-                                <option key={c} value={c}>{c}</option>
-                            )}
-                        </Form.Select>
-                    </Col>
-                    <Col xs={12} md={4}>
-                        <Button onClick={startCam}>
-                            Start
-                        </Button>
-                    </Col>
-                </Row>
-                <Row>
-                    <Col md={2}>
-                        <video id="js-local-stream"></video>
-                    </Col>
-                </Row>
+            <Container fluid>
                 <Row>
                     <Col>
                         <input type="text" placeholder="Room Name" id="js-room-id" />
@@ -351,20 +212,21 @@ export default (props) => {
                         <button id="js-leave-trigger">Leave</button>
                     </Col>
                 </Row>
-
-                <div id="js-remote-streams"></div>
+                <Row>
+                    <div id="js-remote-streams"></div>
+                </Row>
                 <br />
-                <Col>
-                    Logs:
-                    <pre>
-                        {videoStatus}
-                    </pre>
-                </Col>
+                <Row>
+                    <Col>
+                        Logs:
+                        <pre>
+                            {videoStatus}
+                        </pre>
+                    </Col>
+                </Row>
             </Container>
-
         </>
     );
 };
-
 
 
