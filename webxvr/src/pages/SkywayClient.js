@@ -286,10 +286,12 @@ export default (props) => {
                 const remoteVideo = remoteVideos.querySelector(
                     `[data-member-id="${e.member.id}"]`
                 );
-                const stream = remoteVideo.srcObject;
-                stream.getTracks().forEach((track) => track.stop());
-                remoteVideo.srcObject = null;
-                remoteVideo.remove();
+                if (remoteVideo){
+                    const stream = remoteVideo.srcObject;
+                    stream.getTracks().forEach((track) => track.stop());
+                    remoteVideo.srcObject = null;
+                    remoteVideo.remove();
+                }
             });
 
             member.onLeft.once(() => {

@@ -152,18 +152,22 @@ export default (props) => {
             subscription.publication.publisher.id
           );
           newVideo.autoplay = true;
-          newVideo.url = "web-rtc-video";
           stream.attach(newVideo);
           // VR mode じゃない場合は
           const remoteVideos = document.getElementById('js-remote-streams');
           newVideo.setAttribute("width",""+window.innerWidth);
           newVideo.setAttribute("height",""+window.innerHeight);
+          console.log("VideoState",newVideo.videoState);
+          newVideo.addEventListener("loadeddata",()=>{
+           // console.log("Video Loaded!!!");
+            remoteVideos.append(newVideo);
+            scene.addNode(new VideoboxNode({
+              video:newVideo
+            }));
+  
+          })
 
-          // ここで、エレメントを Scene に追加したい！
-          remoteVideos.append(newVideo);
-          scene.addNode(new VideoboxNode({
-            video:newVideo
-          }));
+            // ここで、エレメントを Scene に追加したい！
    
           console.log("Appending!", newVideo);
           const nn={};

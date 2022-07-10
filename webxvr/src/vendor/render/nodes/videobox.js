@@ -25,10 +25,55 @@ Node for displaying 360 equirect images as a skybox.
 import {Material, RENDER_ORDER} from '../core/material';
 import {Primitive, PrimitiveAttribute} from '../core/primitive';
 import {Node} from '../core/node';
-//import {UrlTexture} from '../core/texture';
-import {VideoTexture} from '../core/texture';
+import {Texture} from '../core/texture';
 
 const GL = WebGLRenderingContext; // For enums
+
+
+class VideoBoxTexture extends Texture {
+  constructor(video) {
+    super();
+
+    this._video = video;
+
+    if (video.readyState >= 2) {
+      this._promise = Promise.resolve(this);
+    } else if (video.error) {
+      this._promise = Promise.reject(video.error);
+    } else {
+      this._promise = new Promise((resolve, reject) => {
+        video.addEventListener('loadeddata', () => resolve(this));
+        video.addEventListener('error', reject);
+      });
+    }
+  }
+
+  get format() {
+    // TODO: Can be RGB in some cases.
+    return GL.RGBA;
+  }
+
+  get width() {
+    return this._video.videoWidth;
+  }
+
+  get height() {
+    return this._video.videoHeight;
+  }
+
+  waitForComplete() {
+    return this._promise;
+  }
+
+  get textureKey() {
+    return "webxr-rtc";
+  }
+
+  get source() {
+    return this._video;
+  }
+}
+
 
 class VideoboxMaterial extends Material {
   constructor() {
@@ -45,7 +90,7 @@ class VideoboxMaterial extends Material {
   }
 
   get materialName() {
-    return 'SKYBOX';
+    return 'VIDEOBOX';
   }
 
   get vertexSource() {
@@ -87,6 +132,8 @@ export class VideoboxNode extends Node {
 
     this._url = options.video.src;
     this._video= options.video;
+    this._video_texture =new VideoBoxTexture(this._video);
+//    this._video_texture.textureKey="webrtc-vr";
     this._displayMode = options.displayMode || 'mono';
     this._rotationY = options.rotationY || 0;
   }
@@ -141,7 +188,8 @@ export class VideoboxNode extends Node {
     primitive.setIndexBuffer(indexBuffer);
 
     let material = new VideoboxMaterial();
-    material.image.texture = new VideoTexture(this._video);
+    material.image.texture = this._video_texture;
+//    console.log("Material",material);
 
     switch (this._displayMode) {
       case 'mono':
