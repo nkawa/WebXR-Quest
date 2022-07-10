@@ -6,8 +6,10 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import Main from './pages/Main';
 import Info from './pages/Info';
 import VRpage from './pages/VRpage';
+import AutoVR from './pages/AutoVR';
 import SkywayClient from   './pages/SkywayClient';
 import SkywayReceive from   './pages/SkywayReceive';
+import AutoReceive from   './pages/AutoReceive';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
@@ -16,9 +18,11 @@ root.render(
       <Route path="/" element={<Main />} />
       <Route path="/home" element={<Main />} />
       <Route path="/info" element={<Info />} />
-      <Route path="/vr" element={<VRpage />} /> 
+      <Route path="/autovr" element={<VRpage />} /> 
+      <Route path="/vr" element={<AutoVR />} /> 
       <Route path="/skyway" element={<SkywayClient />} />
       <Route path="/swrecv" element={<SkywayReceive />} />
+      <Route path="/autorecv" element={<AutoReceive />} />
     </Routes>
   </HashRouter>
 );
