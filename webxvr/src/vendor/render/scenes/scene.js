@@ -19,7 +19,7 @@
 // SOFTWARE.
 
 import {RenderView} from '../core/renderer';
-//import {InputRenderer} from '../nodes/input-renderer';
+import {InputRenderer} from '../nodes/input-renderer';
 
 import {StatsViewer} from '../nodes/stats-viewer';
 
@@ -74,8 +74,8 @@ export class Scene extends Node {
 
   get inputRenderer() {
     if (!this._inputRenderer) {
-//      this._inputRenderer = new InputRenderer();
-//      this.addNode(this._inputRenderer);
+       this._inputRenderer = new InputRenderer();
+       this.addNode(this._inputRenderer);
     }
     return this._inputRenderer;
   }

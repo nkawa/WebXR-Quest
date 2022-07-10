@@ -25,7 +25,7 @@ import {DataTexture} from '../core/texture';
 import {Gltf2Node} from '../nodes/gltf2';
 
 // This library matches XRInputSource profiles to available controller models for us.
-import { fetchProfile } from 'https://cdn.jsdelivr.net/npm/@webxr-input-profiles/motion-controllers@1.0/dist/motion-controllers.module.js';
+import { fetchProfile } from '@webxr-input-profiles/motion-controllers';
 
 // The path of the CDN the sample will fetch controller models from.
 const DEFAULT_PROFILES_PATH = 'https://cdn.jsdelivr.net/npm/@webxr-input-profiles/assets@1.0/dist/profiles';

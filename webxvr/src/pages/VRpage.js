@@ -31,6 +31,7 @@ export default (props)=>{
       }));
 
 
+
       function initXR() {
         xrButton = new WebXRButton({
           onRequestSession: onRequestSession,
@@ -55,6 +56,7 @@ export default (props)=>{
           xrCompatible: true
         });
         document.body.appendChild(gl.canvas);
+        initXR(); 
 
         function onResize() {
           gl.canvas.width = gl.canvas.clientWidth * window.devicePixelRatio;
@@ -81,7 +83,7 @@ export default (props)=>{
         session.addEventListener('end', onSessionEnded);
 
         initGL();
-//        scene.inputRenderer.useProfileControllerMeshes(session);
+        scene.inputRenderer.useProfileControllerMeshes(session);
         let glLayer = new XRWebGLLayer(session, gl);
         session.updateRenderState({ baseLayer: glLayer });
 
@@ -146,7 +148,7 @@ export default (props)=>{
       }
     useEffect(()=>{
         console.log("VR page loaded");
-        initXR();
+       
     },[]);
 
 
