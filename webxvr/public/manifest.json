@@ -1,6 +1,6 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "WebXVR",
+  "name": "WebXR app for VR",
   "icons": [
     {
       "src": "favicon.ico",
