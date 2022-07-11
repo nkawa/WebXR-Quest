@@ -1,4 +1,4 @@
-import { useEffect , useState, useCallback } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { WebXRButton } from '../vendor/util/webxr-button';
 import { Scene, WebXRView } from '../vendor/render/scenes/scene';
 import { Renderer, createWebGLContext } from '../vendor/render/core/renderer';
@@ -22,103 +22,36 @@ import {
 
 import { SfuBotMember, SfuClientPlugin } from '@skyway-sdk/sfu-client';
 
-const appId = process.env.REACT_APP_SKYWAY_APPID;
-const secretKey = process.env.REACT_APP_SKYWAY_SECRETKEY;
-
-
-const webxvrTokenBase = {
-  jti: uuidV4(),
-  iat: Math.floor(Date.now() / 1000),
-  exp: Math.floor(Date.now() / 1000) + 600,
-  scope: {
-    app: {
-      id: appId,
-      turn: true,
-      actions: ['read'],
-      channels: [
-        {
-          id: '*',
-          name: '*',
-          actions: ['write'],
-          members: [
-            {
-              id: '*',
-              name: '*',
-              actions: ['write'],
-              publication: {
-                actions: ['write'],
-              },
-              subscription: {
-                actions: ['write'],
-              },
-            },
-          ],
-          sfuBots: [
-            {
-              actions: ['write'],
-              forwardings: [{ actions: ['write'] }],
-            },
-          ],
-        },
-      ],
-    },
-  },
-};
-
-const webxvrToken = new SkyWayAuthToken(webxvrTokenBase);
-const tokenString = webxvrToken.encode(secretKey);
+import { SWTokenString } from '../skyway/skapp';
 
 export default (props) => {
   // XR globals.
+  const [xrButton,SetXrButton] = useState(null);
+  const [xrImmersiveRefSpace, SetXrImmersiveRefSpace] = useState(null);
+  const [inlineViewerHelper, SetInlineViewerHelper] = useState(null);
+  const [gl, SetGl] = useState(null);
+  const [renderer, SetRenderer] = useState(null);
+  const [newVideo, SetNewVideo] = useState(null);
+  const [scene, SetNewScene] = useState(new Scene());
 
-  let xrButton = null;
-  let xrImmersiveRefSpace = null;
-  let inlineViewerHelper = null;
-  let gl = null;
-  let renderer = null;
-  let newVideo = null;
-  const scene = new Scene();
-/*
-  const metapoVideo = document.createElement('video');
-  metapoVideo.loop = true;
-  metapoVideo.src = 'media/preview.mp4';
-  metapoVideo.autoplay= true;
-  
-  scene.addNode(new VideoboxNode({
-    video: metapoVideo,
-//    displayMode: 'stereoTopBottom'
-  }));
-*/
+  const [userVideo, setUserVideo] = useState({});
 
-/*  scene.addNode(new VideoNode({
-    video: metapoVideo
-  }));
-*/
   const [Mem, SetMem] = useState(null);
-  console.log("re-rendar:autoecv:" );
+  console.log("re-rendar:autoVR:");
 
   const addStatus = useCallback((st) => {
-    console.log("AddStatus:"+st);
+    console.log("AddStatus:" + st);
   }, []);
+  const plugin = new SfuClientPlugin();
 
-  const [userVideo,setUserVideo] = useState({});
-
-
-   async function doit() {
-    //        const joinTrigger = document.getElementById('js-join-trigger');
-    //        const leaveTrigger = document.getElementById('js-leave-trigger');
-    //        const roomId = document.getElementById('js-room-id');
-
-//    const remoteVideos = document.getElementById('js-remote-streams');
+  async function doit() {
     const roomId = "uclab-xvr";
-
-  //  console.log("doit:swrecv", remoteVideos);
-
-    const context = await SkyWayContext.Create(tokenString, {
+    const context = await SkyWayContext.Create(SWTokenString, {
       logLevel: 'debug',
     });
     const plugin = new SfuClientPlugin();
     context.registerPlugin(plugin);
+  
     // Register join handler
     const startListen = async () => {
       addStatus("Joining!" + roomId);
@@ -134,17 +67,18 @@ export default (props) => {
         bot = await plugin.createBot(channel);
       }
 
-
       member.onStreamSubscribed.add(async ({ stream, subscription }) => {
         const publisherId = subscription.publication.origin.publisher.id;
-        console.log(stream, subscription);
+        console.log("Stream",stream, subscription);
         addStatus("OnStream:");
         if (stream instanceof RemoteDataStream) {
           return;
         }
 
         if (!userVideo[publisherId]) {// 新しいビデオ！
-          newVideo = document.createElement('video');
+          console.log("LastNewVideo",newVideo);
+          SetNewVideo(document.createElement('video'));
+          console.log("NextNewVideo",newVideo);
           newVideo.playsInline = true;
           // mark peerId to find it later at peerLeave event
           newVideo.setAttribute(
@@ -155,27 +89,27 @@ export default (props) => {
           stream.attach(newVideo);
           // VR mode じゃない場合は
           const remoteVideos = document.getElementById('js-remote-streams');
-          newVideo.setAttribute("width",""+window.innerWidth);
-          newVideo.setAttribute("height",""+window.innerHeight);
-          console.log("VideoState",newVideo.videoState);
-          newVideo.addEventListener("loadeddata",()=>{
-           // console.log("Video Loaded!!!");
+          newVideo.setAttribute("width", "" + window.innerWidth);
+          newVideo.setAttribute("height", "" + window.innerHeight);
+          console.log("VideoState", newVideo.videoState);
+          newVideo.addEventListener("loadeddata", () => {
+            // console.log("Video Loaded!!!");
             remoteVideos.append(newVideo);
             scene.addNode(new VideoboxNode({
-              video:newVideo
+              video: newVideo
             }));
-  
+
           })
 
-            // ここで、エレメントを Scene に追加したい！
-   
+          // ここで、エレメントを Scene に追加したい！
+
           console.log("Appending!", newVideo);
-          const nn={};
-          nn[publisherId]=newVideo;
+          const nn = {};
+          nn[publisherId] = newVideo;
           setUserVideo(nn)
         }
 
-//        const newVideo = userVideo[publisherId];
+        //        const newVideo = userVideo[publisherId];
       });
       const subscribe = async (publication) => {
 
@@ -198,36 +132,36 @@ export default (props) => {
         addStatus("OnMemberLeft!")
 
         if (e.member.id === member.id) return;
-//        const remoteVideos = document.getElementById('js-remote-streams');
+        //        const remoteVideos = document.getElementById('js-remote-streams');
 
- //       const remoteVideo = remoteVideos.querySelector(
- //         `[data-member-id="${e.member.id}"]`
- //       );
-//        if (remoteVideo) {
-//          const stream = remoteVideo.srcObject;
-//          if (stream) {
- //           stream.getTracks().forEach((track) => track.stop());
- //         }
-  //        remoteVideo.srcObject = null;
-  //        remoteVideo.remove();
-  //      } else {
-  //        console.log("remove");
-  //        remoteVideos.innerHTML = null;
-  //      }
-          console.log("should stop remote video");
+        //       const remoteVideo = remoteVideos.querySelector(
+        //         `[data-member-id="${e.member.id}"]`
+        //       );
+        //        if (remoteVideo) {
+        //          const stream = remoteVideo.srcObject;
+        //          if (stream) {
+        //           stream.getTracks().forEach((track) => track.stop());
+        //         }
+        //        remoteVideo.srcObject = null;
+        //        remoteVideo.remove();
+        //      } else {
+        //        console.log("remove");
+        //        remoteVideos.innerHTML = null;
+        //      }
+        console.log("should stop remote video");
       });
 
       member.onLeft.once(() => {
-/*        Array.from(remoteVideos.children).forEach((element) => {
-          const remoteVideo = element;
-          const stream = remoteVideo.srcObject;
-          if (stream) {
-            stream.getTracks().forEach((track) => track.stop());
-          }
-          remoteVideo.srcObject = null;
-          remoteVideo.remove();
-        });
-        */
+        /*        Array.from(remoteVideos.children).forEach((element) => {
+                  const remoteVideo = element;
+                  const stream = remoteVideo.srcObject;
+                  if (stream) {
+                    stream.getTracks().forEach((track) => track.stop());
+                  }
+                  remoteVideo.srcObject = null;
+                  remoteVideo.remove();
+                });
+                */
         channel.dispose();
       });
 
@@ -248,17 +182,13 @@ export default (props) => {
     document.querySelector('header').appendChild(xrButton.domElement);
 
     if (navigator.xr) {
+      // How about WebXR
       navigator.xr.isSessionSupported('immersive-vr').then((supported) => {
         xrButton.enabled = supported;
       });
 
       navigator.xr.requestSession('inline').then(onSessionStarted);
     }
-//    const remoteVideos = document.getElementById('js-remote-streams');
-//    remoteVideos.append(metapoVideo);
-//    document.querySelector('header').appendChild(metapoVideo);
-
-
   }
 
   function initGL() {
@@ -268,23 +198,25 @@ export default (props) => {
     gl = createWebGLContext({
       xrCompatible: true
     });
+    SetGl(gl);
+
     document.body.appendChild(gl.canvas);
 
     function onResize() {
       gl.canvas.width = gl.canvas.clientWidth * window.devicePixelRatio;
       gl.canvas.height = gl.canvas.clientHeight * window.devicePixelRatio;
-        // for video
-        if (newVideo){
-        newVideo.setAttribute("width",""+window.innerWidth);
-        newVideo.setAttribute("height",""+window.innerHeight);
-        }
+      // for video
+      if (newVideo) {
+        newVideo.setAttribute("width", "" + window.innerWidth);
+        newVideo.setAttribute("height", "" + window.innerHeight);
+      }
     }
     window.addEventListener('resize', onResize);
     onResize();
 
-    renderer = new Renderer(gl);
-
-    scene.setRenderer(renderer);
+    const newRenderer = new Renderer(gl);
+    SetRenderer(newRenderer);
+    scene.setRenderer(newRenderer);
 
   }
 
@@ -369,8 +301,8 @@ export default (props) => {
     console.log("VR page loaded");
     initXR();
     return (() => {
-      console.log("Leave AutoVR",Mem);
-//      Mem.leave();
+      console.log("Leave AutoVR", Mem);
+      //      Mem.leave();
     });
   }, []);
   return (

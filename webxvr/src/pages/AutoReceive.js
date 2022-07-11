@@ -16,55 +16,14 @@ import { SfuBotMember, SfuClientPlugin } from '@skyway-sdk/sfu-client';
 
 import TopNavi from '../components/TopNavi';
 
-const appId = process.env.REACT_APP_SKYWAY_APPID;
-const secretKey = process.env.REACT_APP_SKYWAY_SECRETKEY;
+import { SWTokenString } from '../skyway/skapp';
+const tokenString =SWTokenString;
 
-const webxvrTokenBase = {
-    jti: uuidV4(),
-    iat: Math.floor(Date.now() / 1000),
-    exp: Math.floor(Date.now() / 1000) + 600,
-    scope: {
-        app: {
-            id: appId,
-            turn: true,
-            actions: ['read'],
-            channels: [
-                {
-                    id: '*',
-                    name: '*',
-                    actions: ['write'],
-                    members: [
-                        {
-                            id: '*',
-                            name: '*',
-                            actions: ['write'],
-                            publication: {
-                                actions: ['write'],
-                            },
-                            subscription: {
-                                actions: ['write'],
-                            },
-                        },
-                    ],
-                    sfuBots: [
-                        {
-                            actions: ['write'],
-                            forwardings: [{ actions: ['write'] }],
-                        },
-                    ],
-                },
-            ],
-        },
-    },
-};
-
-const webxvrToken = new SkyWayAuthToken(webxvrTokenBase);
-const tokenString = webxvrToken.encode(secretKey);
-
+var person; // for local state..
 
 export default (props) => {
     const [videoStatus, setVideoStatus] = useState("None");
-    const [Mem, SetMem] = useState(null);
+    const [userVideo, SetUserVideo] = useState({});
     console.log("re-rendar:autoecv:" + videoStatus);
 
     const addStatus = useCallback((st) => {
@@ -76,19 +35,17 @@ export default (props) => {
 
     useEffect(() => {
         doit();
-        return (() => {
-            console.log("Leave AutoReceive",Mem);
-
-//            Mem.leave();
+        return (async () => {
+            console.log("Leave AutoReceive",person);
+            if (person){
+                await person.leave();
+            }
         });
     }, []);
 
     async function doit() {
-        //        const joinTrigger = document.getElementById('js-join-trigger');
-        //        const leaveTrigger = document.getElementById('js-leave-trigger');
-        //        const roomId = document.getElementById('js-room-id');
 
-        const remoteVideos = document.getElementById('js-remote-streams');
+        const remoteVideos = document.getElementById('auto-remote-streams');
         const roomId = "uclab-xvr";
 
         console.log("doit:swrecv", remoteVideos);
@@ -104,8 +61,7 @@ export default (props) => {
             const channel = await SkyWayChannel.FindOrCreate(context, {
                 name: roomId,
             });
-            const member = await channel.join({});
-            SetMem(member);
+            person = await channel.join({});
             addStatus("Joined:" + roomId);
 
             let bot = channel.bots.find((b) => b.subtype === SfuBotMember.subtype);
@@ -113,9 +69,8 @@ export default (props) => {
                 bot = await plugin.createBot(channel);
             }
 
-            const userVideo = {};
-
-            member.onStreamSubscribed.add(async ({ stream, subscription }) => {
+            // 新しいビデオが来たら
+            person.onStreamSubscribed.add(async ({ stream, subscription }) => {
                 const publisherId = subscription.publication.origin.publisher.id;
                 console.log(stream, subscription);
                 addStatus("OnStream:" );
@@ -131,40 +86,59 @@ export default (props) => {
                         'data-member-id',
                         subscription.publication.publisher.id
                     );
+
+
                     newVideo.autoplay = true;
                     remoteVideos.append(newVideo);
                     console.log("Appending!", newVideo);
-                    userVideo[publisherId] = newVideo;
+                    const nnVideo = {...userVideo};
+                    nnVideo[publisherId] = newVideo;
+                    SetUserVideo(nnVideo);// for React
+                    stream.attach(newVideo);
+
+                    // キャンセルされたら、エレメントを消す
+                    subscription.onCanceled.add(()=>{
+                        remoteVideos.removeChild(newVideo);
+                        delete userVideo[publisherId];
+                    });
+                    
+                }else{
+                    const newVideo = userVideo[publisherId];
+                    stream.attach(newVideo);
                 }
 
-                const newVideo = userVideo[publisherId];
-                stream.attach(newVideo);
             });
-            const subscribe = async (publication) => {
 
-                if (publication.origin && publication.origin.publisher.id !== member.id) {
-                    await member.subscribe(publication.id);
+            person.onSubscriptionChanged.add(()=>{
+                console.log("Subscription Changed:");
+                console.log(person.subscriptions);
+            });
+
+            const subscribe = async (publication) => {
+                if (publication.origin && publication.origin.publisher.id !== person.id) {
+                    await person.subscribe(publication.id);
                 }
             };
-            channel.onStreamPublished.add(async (e) => {
-                addStatus("OnStreamPublished!")
 
+            // 新しい publication を subscribe
+            channel.onStreamPublished.add(async (e) => {
+                addStatus("OnStreamPublished!",e);
                 await subscribe(e.publication);
             });
+            // 既存の　publication を subscribe
             channel.publications.forEach(async (p) => {
-                addStatus("OnStreamPublications!")
-
+                addStatus("OnStreamPublications!".p)
                 await subscribe(p);
             });
 
             channel.onMemberLeft.add((e) => {
-                addStatus("OnMemberLeft!")
-
-                if (e.member.id === member.id) return;
-                const remoteVideos = document.getElementById('js-remote-streams');
+//                addStatus("OnMemberLeft!",e);
+                console.log("on member left",e);
+                if (e.person.id === person.id) return;
+                const remoteVideos = document.getElementById('auto-remote-streams');
 
                 const remoteVideo = remoteVideos.querySelector(
-                    `[data-member-id="${e.member.id}"]`                    
+                    `[data-member-id="${e.person.id}"]`                    
                 );
                 if (remoteVideo){
                     const stream = remoteVideo.srcObject;
@@ -174,16 +148,18 @@ export default (props) => {
                     remoteVideo.srcObject = null;
                     remoteVideo.remove();
                 }else{
-                    console.log("remove");
-                    remoteVideos.innerHTML=null;
+                    console.log("remove not working");
+//                    remoteVideos.innerHTML=null;
                 }
             });
 
-            member.onLeft.once(() => {
+            person.onLeft.once(() => {
+                console.log("I'm leaving!",person);
                 Array.from(remoteVideos.children).forEach((element) => {
                     const remoteVideo = element;
                     const stream = remoteVideo.srcObject;
                     if (stream ){
+                        console.log("Stopping videos",stream);
                         stream.getTracks().forEach((track) => track.stop());
                     }
                     remoteVideo.srcObject = null;
@@ -204,19 +180,10 @@ export default (props) => {
 
         <>
             <TopNavi />
-            <Container fluid>
-                <Row >
-                    {/*                   <Col>
-                        <input type="text" placeholder="Room Name" id="js-room-id" />
-                        <button id="js-join-trigger">Join</button>
-                        <button id="js-leave-trigger">Leave</button>
-                    </Col>
-*/}                </Row>
-
+            <Container>
                 <Row>
-                    <div id="js-remote-streams"></div>
+                    <div id="auto-remote-streams"></div>
                 </Row>
-                <br />
                 <Row>
                     <Col>
                         Logs:

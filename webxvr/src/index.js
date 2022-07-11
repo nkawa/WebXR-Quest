@@ -4,11 +4,12 @@ import { Route, Routes, HashRouter } from 'react-router-dom';
 import reportWebVitals from './reportWebVitals';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Main from './pages/Main';
-import Info from './pages/Info';
-import VRpage from './pages/VRpage';
+//import Info from './pages/Info';
+//import VRpage from './pages/VRpage';
 import AutoVR from './pages/AutoVR';
-import VideoVR from './pages/flatVideoVR';
+//import VideoVR from './pages/flatVideoVR';
 import SkywayClient from   './pages/SkywayClient';
+import AutoSend from   './pages/AutoSend';
 import SkywayReceive from   './pages/SkywayReceive';
 import AutoReceive from   './pages/AutoReceive';
 
@@ -17,14 +18,16 @@ root.render(
   <HashRouter>
     <Routes>
       <Route path="/" element={<Main />} />
-      <Route path="/home" element={<Main />} />
+{/*      <Route path="/home" element={<Main />} />
       <Route path="/info" element={<Info />} />
-      <Route path="/autovr" element={<AutoVR />} /> 
       <Route path="/vr" element={<VRpage />} /> 
       <Route path="/flatVideo" element={<VideoVR />} /> 
+*/}
+      <Route path="/autovr" element={<AutoVR />} /> 
       <Route path="/skyway" element={<SkywayClient />} />
       <Route path="/swrecv" element={<SkywayReceive />} />
       <Route path="/autorecv" element={<AutoReceive />} />
+      <Route path="/autosend" element={<AutoSend />} />
     </Routes>
   </HashRouter>
 );

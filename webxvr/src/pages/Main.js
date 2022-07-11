@@ -9,7 +9,9 @@ return (
     <>
     <TopNavi />
 
-    ようこそ Web XVR の世界へ！
+    　　　ようこそ Web XVR の世界へ！
+
+　　　　　<center>  VR で見るには「AutoVR」を選択 ↑</center>
 
     </>
 );

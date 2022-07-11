@@ -106,7 +106,7 @@ export default (props) => {
         video.attach(localVideo);
         localVideo.play().catch(console.error);
         console.log("Attached", localVideo);
-        addStatus("Working!"+video);
+        addStatus("Working!");
 
         { // チャンネル (join していないと動かない)
             let bot = null;
