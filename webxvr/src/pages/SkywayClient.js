@@ -68,8 +68,9 @@ export default (props) => {
     const [Cam, setCam] = useState("None");
     const [CamList, setCamList] = useState([]);
     const [CamRawList, setCamRawList] = useState([]);
-    const [Chan, SetChan] = useState({});
-    const [Mem, SetMem] = useState({});
+    const [Chan, SetChan] = useState(null);
+    const [Mem, SetMem] = useState(null);
+    const [CVideo,SetCVideo] = useState(null);
 
     console.log("re-rendar:SkywayClient");
 
@@ -92,6 +93,7 @@ export default (props) => {
 
         const localVideo = document.getElementById('js-local-stream');
 
+        // 特定のカメラのケイパビリティを指定
         const capabi = {
             deviceId: {
                 exact: media.id
@@ -99,33 +101,57 @@ export default (props) => {
         };
 
         const video = await SkyWayMediaDevices.createCameraVideoStream(capabi);
+        SetCVideo(video); // LocalVideo
         console.log(video);
         video.attach(localVideo);
         localVideo.play().catch(console.error);
-        addStatus("Working!");
+        console.log("Attached", localVideo);
+        addStatus("Working!"+video);
 
-        {
-            console.log("CHan is",Chan);
-            let bot = Chan.bots.find((b) => b.subtype === SfuBotMember.subtype);
-            if (!bot) {
-                bot = await plugin.createBot(Chan);
+        { // チャンネル (join していないと動かない)
+            let bot = null;
+            if (Chan){
+                bot = Chan.bots.find((b) => b.subtype === SfuBotMember.subtype);
+                if (Chan & !bot) {
+                    bot = await plugin.createBot(Chan);
+                }
             }
-            const publication = await Mem.publish(video);
-            await bot.startForwarding(publication);
-            addStatus("Do Forward!");
+            if (bot){
+                const publication = await Mem.publish(video);
+                await bot.startForwarding(publication);
+                addStatus("Do Forward!");    
+            }
         }
     }
 
-
     const startCam = useCallback((e) => {
+        console.log("Click", e.target);
+        if (e.target.innerText == "Stop"){
+            const localVideo = document.getElementById('js-local-stream');
+            console.log("Stopiing!", localVideo);
+            localVideo.pause();
+            CVideo.detach(); //
+            CVideo.release(); // release media
+            SetCVideo(null);
+            const videoParent = document.getElementById('js-video-parent');
+            videoParent.removeChild(localVideo);
+            const videoNew = document.createElement("video");
+            videoNew.setAttribute('id','js-local-stream');
+            videoParent.appendChild(videoNew);
+//            localVideo.remove
+//            detach
+            e.target.innerText = "Start";
+        }else{
         //        console.log("Checking", Cam);
-        const media = CamRawList[CamList.indexOf(Cam)];
+            const media = CamRawList[CamList.indexOf(Cam)];
         //        console.log("StartMedia", media,CamList, Cam, CamList.indexOf(Cam));
-        doVideo(media);
-        console.log("in stat", Chan);
+            doVideo(media);
+            console.log("in start Channel", Chan);
 
+            e.target.innerText = "Stop";
+        }
 
-    }, [Cam, CamList, CamRawList,Chan, Mem]);
+    }, [Cam, CamList, CamRawList,Chan, Mem,CVideo]);
 
     const plugin = new SfuClientPlugin();
 
@@ -205,8 +231,9 @@ export default (props) => {
             const channel = await SkyWayChannel.FindOrCreate(context, {
                 name: roomId.value,
             });
+
             SetChan(channel);
-            console.log("Chan!", channel);
+            console.log("Set Skyway Channel!", channel);
 
             const member = await channel.join({});
             SetMem(member);
@@ -336,14 +363,16 @@ export default (props) => {
                         </Form.Select>
                     </Col>
                     <Col xs={12} md={4}>
-                        <Button onClick={startCam}>
+                        <Button onClick={startCam} >
                             Start
                         </Button>
                     </Col>
                 </Row>
                 <Row>
                     <Col md={2}>
-                        <video id="js-local-stream"></video>
+                        <div id="js-video-parent">
+                            <video id="js-local-stream"></video>
+                        </div>
                     </Col>
                 </Row>
                 <Row>
@@ -353,8 +382,7 @@ export default (props) => {
                         <button id="js-leave-trigger">Leave</button>
                     </Col>
                 </Row>
-
-                <div id="js-remote-streams"></div>
+                    <div id="js-remote-streams"></div>
                 <br />
                 <Col>
                     Logs:
