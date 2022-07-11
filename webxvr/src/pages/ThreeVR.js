@@ -6,6 +6,8 @@ import { Renderer, createWebGLContext } from '../vendor/render/core/renderer';
 import { VideoboxNode } from '../vendor/render/nodes/videobox';
 import { InlineViewerHelper } from '../vendor/util/inline-viewer-helper';
 
+import * as THREE from 'three';
+
 import { VideoNode } from '../vendor/render/nodes/video';
 //import {QueryArgs} from '../vendor/util/query-args.js';
 import './VR.css';
@@ -23,8 +25,9 @@ import {
 import { SfuBotMember, SfuClientPlugin } from '@skyway-sdk/sfu-client';
 
 import { SWTokenString } from '../skyway/skapp';
+import { VRButton } from "../vendor/three/VRButton.js"; 
 
-const scene = new Scene();
+let scene = null;
 let renderer = null;
 let gl = null;
 let xrImmersiveRefSpace = null;
@@ -35,6 +38,8 @@ let context = null;
 let channel = null;
 let person = null;
 let xrButton = null;
+
+let box=null;
 
 export default (props) => {
   // XR globals.
@@ -85,10 +90,26 @@ export default (props) => {
           newVideo.addEventListener("loadeddata", () => {
             console.log("Video Loaded!!!");
             remoteVideos.append(newVideo);
-            scene.addNode(new VideoboxNode({
-              video: newVideo
-            }));
+            
+            // THREE.js のテクスチャにする
+            const texture = new THREE.VideoTexture(newVideo );
+            texture.minFilter = THREE.LinearFilter;
+            texture.magFilter = THREE.LinearFilter;
+            texture.format = THREE.RGBAFormat;
+//            const parameters = {color: 0xffffff, map: texture};
 
+            const geometry = new THREE.SphereGeometry(500, 60, 40);
+		    geometry.applyMatrix4(new THREE.Matrix4().makeScale(-1, 1, 1));
+            const material = new THREE.MeshBasicMaterial({ map: texture });
+    
+//            const geometry = new THREE.BoxGeometry();
+//            const material = new THREE.MeshBasicMaterial( { map: texture } );
+            const sphere = new THREE.Mesh(geometry, material);
+//            box.position.z = -3;
+            scene.remove(box);
+            scene.add(sphere);
+            
+//            boxs = [];
           })
 
           // ここで、エレメントを Scene に追加したい！
@@ -122,36 +143,10 @@ export default (props) => {
         addStatus("OnMemberLeft!")
 
         if (e.member.id === person.id) return;
-        //        const remoteVideos = document.getElementById('js-remote-streams');
-
-        //       const remoteVideo = remoteVideos.querySelector(
-        //         `[data-member-id="${e.member.id}"]`
-        //       );
-        //        if (remoteVideo) {
-        //          const stream = remoteVideo.srcObject;
-        //          if (stream) {
-        //           stream.getTracks().forEach((track) => track.stop());
-        //         }
-        //        remoteVideo.srcObject = null;
-        //        remoteVideo.remove();
-        //      } else {
-        //        console.log("remove");
-        //        remoteVideos.innerHTML = null;
-        //      }
         console.log("should stop remote video");
       });
 
       person.onLeft.once(() => {
-        /*        Array.from(remoteVideos.children).forEach((element) => {
-                  const remoteVideo = element;
-                  const stream = remoteVideo.srcObject;
-                  if (stream) {
-                    stream.getTracks().forEach((track) => track.stop());
-                  }
-                  remoteVideo.srcObject = null;
-                  remoteVideo.remove();
-                });
-                */
         channel.dispose();
       });
 
@@ -164,130 +159,53 @@ export default (props) => {
   }
 
 
-  function initXR() {
-    xrButton = new WebXRButton({
-      onRequestSession: onRequestSession,
-      onEndSession: onEndSession
-    });
-    document.querySelector('header').appendChild(xrButton.domElement);
-
-    if (navigator.xr) {
-      // How about WebXR
-      navigator.xr.isSessionSupported('immersive-vr').then((supported) => {
-        xrButton.enabled = supported;
-      });
-
-      navigator.xr.requestSession('inline').then(onSessionStarted);
-    }
-  }
-
   function initGL() {
     if (gl)
       return;
 
-    gl = createWebGLContext({
-      xrCompatible: true
-    });
+    scene = new THREE.Scene();
+    const camera =  new THREE.PerspectiveCamera(
+        75,
+        window.innerWidth / window.innerHeight,
+        0.1,
+        1000
+      );
+    renderer = new THREE.WebGLRenderer({ antialias: true });
 
-    document.body.appendChild(gl.canvas);
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.xr.enabled = true; // レンダラーのXRを有効化
+    document.body.appendChild(renderer.domElement);
 
-    function onResize() {
-      gl.canvas.width = gl.canvas.clientWidth * window.devicePixelRatio;
-      gl.canvas.height = gl.canvas.clientHeight * window.devicePixelRatio;
-      // for video
-      if (newVideo) {
-        newVideo.setAttribute("width", "" + window.innerWidth);
-        newVideo.setAttribute("height", "" + window.innerHeight);
-      }
+    const directionalLight = new THREE.DirectionalLight("#ffffff", 1);
+    directionalLight.position.set(0, 10, 10);
+    scene.add(directionalLight);
+
+    const geometry = new THREE.BoxGeometry();
+    const material = new THREE.MeshPhongMaterial({ color: 0xff0000 });
+    box = new THREE.Mesh(geometry, material);
+    box.position.z = -5;
+    scene.add(box);
+
+    document.body.appendChild(VRButton.createButton(renderer));
+//    boxs.push(box);
+
+    function animate() {
+        if (box){
+            box.rotation.x += 0.01;
+            box.rotation.y += 0.01;
+        }
+        renderer.render(scene, camera);
     }
-    window.addEventListener('resize', onResize);
-    onResize();
-
-    renderer = new Renderer(gl);
-    scene.setRenderer(renderer);
+    renderer.setAnimationLoop(animate);
 
   }
 
-  function onRequestSession() {
-    return navigator.xr.requestSession('immersive-vr').then((session) => {
-      xrButton.setSession(session);
-      session.isImmersive = true;
-      onSessionStarted(session);
-    });
-  }
-
-  function onSessionStarted(session) {
-    session.addEventListener('end', onSessionEnded);
-
-    initGL();
-    scene.inputRenderer.useProfileControllerMeshes(session);
-    let glLayer = new XRWebGLLayer(session, gl);
-    session.updateRenderState({ baseLayer: glLayer });
-
-    let refSpaceType = session.isImmersive ? 'local' : 'viewer';
-    session.requestReferenceSpace(refSpaceType).then((refSpace) => {
-      if (session.isImmersive) {
-        xrImmersiveRefSpace = refSpace;
-      } else {
-        inlineViewerHelper = new InlineViewerHelper(gl.canvas, refSpace);
-      }
-      session.requestAnimationFrame(onXRFrame);
-    });
-  }
-
-  function onEndSession(session) {
-    session.end();
-  }
-
-
-  function onSessionEnded(event) {
-    if (event.session.isImmersive) {
-      xrButton.setSession(null);
-    }
-  }
-
-  //ここでポーズ更新
-  function onXRFrame(t, frame) {
-    let session = frame.session;
-    let refSpace = session.isImmersive ?
-      xrImmersiveRefSpace :
-      inlineViewerHelper.referenceSpace;
-    let pose = frame.getViewerPose(refSpace);
-
-    scene.startFrame();
-
-    session.requestAnimationFrame(onXRFrame);
-
-    let glLayer = session.renderState.baseLayer;
-    gl.bindFramebuffer(gl.FRAMEBUFFER, glLayer.framebuffer);
-    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-
-    if (pose) {
-      let views = [];
-      for (let view of pose.views) {
-
-        let renderView = new WebXRView(view, glLayer);
-
-        // It's important to take into account which eye the view is
-        // associated with in cases like this, since it informs which half
-        // of the stereo image should be used when rendering the view.
-        renderView.eye = view.eye
-        views.push(renderView);
-      }
-
-      scene.updateInputSources(frame, refSpace);
-
-      scene.drawViewArray(views);
-
-    }
-
-    scene.endFrame();
-  }
   useEffect(() => {
+    console.log("VR page loaded");
+    initGL();
     console.log("Set Skyway");
     doit();
-    console.log("VR page loaded");
-    initXR();
     return (async () => {
       console.log("Leave AutoVR", person);
       if(person){

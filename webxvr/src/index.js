@@ -12,6 +12,8 @@ import SkywayClient from   './pages/SkywayClient';
 import AutoSend from   './pages/AutoSend';
 import SkywayReceive from   './pages/SkywayReceive';
 import AutoReceive from   './pages/AutoReceive';
+import ThreeVR from   './pages/ThreeVR';
+
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
@@ -23,6 +25,7 @@ root.render(
       <Route path="/vr" element={<VRpage />} /> 
       <Route path="/flatVideo" element={<VideoVR />} /> 
 */}
+      <Route path="/threevr" element={<ThreeVR />} /> 
       <Route path="/autovr" element={<AutoVR />} /> 
       <Route path="/skyway" element={<SkywayClient />} />
       <Route path="/swrecv" element={<SkywayReceive />} />

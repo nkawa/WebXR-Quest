@@ -91,7 +91,7 @@ class VideoboxMaterial extends Material {
   }
 
   get materialName() {
-    return 'VIDEOBOX';
+    return 'VIDEO_PLAYER';
   }
 
   get vertexSource() {
