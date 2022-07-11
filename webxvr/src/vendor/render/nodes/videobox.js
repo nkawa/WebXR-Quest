@@ -35,6 +35,7 @@ class VideoBoxTexture extends Texture {
     super();
 
     this._video = video;
+    console.log("video state", video.readyState);
 
     if (video.readyState >= 2) {
       this._promise = Promise.resolve(this);
@@ -135,7 +136,7 @@ export class VideoboxNode extends Node {
     this._video_texture =new VideoBoxTexture(this._video);
 //    this._video_texture.textureKey="webrtc-vr";
     this._displayMode = options.displayMode || 'mono';
-    this._rotationY = options.rotationY || 0;
+    this._rotationY = options.rotationY ||  Math.PI;
   }
 
   onRendererChanged(renderer) {
@@ -156,9 +157,9 @@ export class VideoboxNode extends Node {
 
       for (let j=0; j <= lonSegments; ++j) {
         let phi = (j * 2 * Math.PI / lonSegments) + this._rotationY;
-        let x = Math.sin(phi) * sinTheta;
-        let y = cosTheta;
-        let z = -Math.cos(phi) * sinTheta;
+        let x = Math.sin(phi) * sinTheta*10;
+        let y = cosTheta *10;
+        let z = -Math.cos(phi) * sinTheta*10;
         let u = (j / lonSegments);
         let v = (i / latSegments);
 
