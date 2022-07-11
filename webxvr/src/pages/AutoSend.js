@@ -60,6 +60,10 @@ export default (props) => {
 
         // 特定のカメラのケイパビリティを指定
         const capabi = {
+            video: {
+                width:{min:640,ideal:1920,max:1920 },
+                height:{min:480,ideal:1080,max:1080}
+            },
             deviceId: {
                 exact: media.id
             }
@@ -83,7 +87,14 @@ export default (props) => {
             }
             if (bot){
                 if (!publication){
-                    publication = await person.publish(myVideo); // ここで publish
+                    publication = await person.publish(myVideo,{
+                        codecCapabilities: [{ mimeType: 'video/av1' }, { mimeType: 'video/h264' }], // コーデックが指定できる！
+                        encodings: [
+                            // 複数のパラメータをセットする
+                            { maxBitrate: 10_000, scaleResolutionDownBy: 8 },
+                            { maxBitrate: 680_000, scaleResolutionDownBy: 1 },
+                          ],
+                    }); // ここで publish
                     await bot.startForwarding(publication);
                     addStatus("Do Forward!");    
                 }
