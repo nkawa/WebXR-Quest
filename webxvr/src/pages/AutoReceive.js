@@ -62,7 +62,7 @@ export default (props) => {
                 name: roomId,
             });
 //            person = await channel.join({});
-            person = await channel.join({name:MyInfo+","+window.navigator.userAgent});
+            person = await channel.join({name:"Recv,"+MyInfo+","+window.navigator.userAgent});
 
             addStatus("Joined:" + roomId);
 

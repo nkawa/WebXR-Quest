@@ -18,7 +18,7 @@ import {
 import { SfuBotMember, SfuClientPlugin } from '@skyway-sdk/sfu-client';
 
 
-import { SWTokenString } from '../skyway/skapp';
+import { SWTokenString,MyInfo } from '../skyway/skapp';
 
 let channel = null;
 let person = null;
@@ -92,7 +92,7 @@ export default (props) => {
 
 
 
-        person = await channel.join({});
+        person = await channel.join({name:"admin,"+MyInfo});
         console.log(context);
         console.log(channel);
         console.log("Joined:", person);
