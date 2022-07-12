@@ -24,7 +24,7 @@ import {
 
 import { SfuBotMember, SfuClientPlugin } from '@skyway-sdk/sfu-client';
 
-import { SWTokenString } from '../skyway/skapp';
+import { SWTokenString , MyInfo} from '../skyway/skapp';
 import { VRButton } from "../vendor/three/VRButton.js"; 
 
 let scene = null;
@@ -40,11 +40,13 @@ let person = null;
 let xrButton = null;
 
 let box=null;
+let myip = null;
 
 export default (props) => {
   // XR globals.
   const [userVideo, setUserVideo] = useState({});
   console.log("re-rendar:autoVR:");
+
 
   const addStatus = useCallback((st) => {
     console.log("AddStatus:" + st);
@@ -64,7 +66,7 @@ export default (props) => {
       channel = await SkyWayChannel.FindOrCreate(context, {
         name: roomId,
       });
-      person = await channel.join({});
+      person = await channel.join({name:MyInfo+","+window.navigator.userAgent});
       addStatus("Joined:" + roomId);
 
       person.onStreamSubscribed.add(async ({ stream, subscription }) => {

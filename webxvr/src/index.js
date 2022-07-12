@@ -13,24 +13,28 @@ import AutoSend from   './pages/AutoSend';
 import SkywayReceive from   './pages/SkywayReceive';
 import AutoReceive from   './pages/AutoReceive';
 import ThreeVR from   './pages/ThreeVR';
-
+import SkywayConsole from './pages/SkywayConsole';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <HashRouter>
     <Routes>
       <Route path="/" element={<Main />} />
-{/*      <Route path="/home" element={<Main />} />
+{/*       />
       <Route path="/info" element={<Info />} />
       <Route path="/vr" element={<VRpage />} /> 
       <Route path="/flatVideo" element={<VideoVR />} /> 
-*/}
-      <Route path="/threevr" element={<ThreeVR />} /> 
       <Route path="/autovr" element={<AutoVR />} /> 
+      <Route path="/autovr" element={<AutoVR />} /> 
+*/}
+      <Route path="/home" element={<Main />} />
+      <Route path="/threevr" element={<ThreeVR />} /> 
       <Route path="/skyway" element={<SkywayClient />} />
       <Route path="/swrecv" element={<SkywayReceive />} />
       <Route path="/autorecv" element={<AutoReceive />} />
       <Route path="/autosend" element={<AutoSend />} />
+      <Route path="/admin" element={<SkywayConsole />} />
+
     </Routes>
   </HashRouter>
 );

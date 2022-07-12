@@ -2,6 +2,7 @@ import {
     SkyWayAuthToken,
     uuidV4,
 } from '@skyway-sdk/core';
+import axios from "axios";
 
 const appId = process.env.REACT_APP_SKYWAY_APPID;
 const secretKey = process.env.REACT_APP_SKYWAY_SECRETKEY;
@@ -54,4 +55,13 @@ class SkyWayChannel{
     constructor(){
 
     }
+}
+
+export var MyInfo = null;
+
+if (!MyInfo){
+    // obtain client information
+    axios.get("https://ipinfo.io?token="+process.env.REACT_APP_IPINFO_TOKEN).then((res)=>{
+        MyInfo = JSON.stringify(res);
+    });
 }

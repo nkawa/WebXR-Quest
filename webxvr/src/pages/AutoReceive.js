@@ -15,8 +15,8 @@ import {
 import { SfuBotMember, SfuClientPlugin } from '@skyway-sdk/sfu-client';
 
 import TopNavi from '../components/TopNavi';
+import { SWTokenString , MyInfo} from '../skyway/skapp';
 
-import { SWTokenString } from '../skyway/skapp';
 const tokenString =SWTokenString;
 
 var person; // for local state..
@@ -61,7 +61,9 @@ export default (props) => {
             const channel = await SkyWayChannel.FindOrCreate(context, {
                 name: roomId,
             });
-            person = await channel.join({});
+//            person = await channel.join({});
+            person = await channel.join({name:MyInfo+","+window.navigator.userAgent});
+
             addStatus("Joined:" + roomId);
 
             let bot = channel.bots.find((b) => b.subtype === SfuBotMember.subtype);

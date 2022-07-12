@@ -9,9 +9,9 @@ return (
     <>
     <TopNavi />
 
-    　　　ようこそ Web XVR の世界へ！
+    　　　ようこそ Web XVR の世界へ！ by 名古屋大 UCLab
 
-　　　　　<center>  VR で見るには「AutoVR」を選択 ↑</center>
+　　　　　<center>  VR で見るには「ThreeVR」を選択 ↑</center>
 
     </>
 );

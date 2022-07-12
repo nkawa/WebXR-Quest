@@ -16,7 +16,7 @@ import { SfuBotMember, SfuClientPlugin } from '@skyway-sdk/sfu-client';
 
 import TopNavi from '../components/TopNavi';
 
-import { SWTokenString } from '../skyway/skapp';
+import { SWTokenString, MyInfo } from '../skyway/skapp';
 
 let myVideo = null;
 let channel = null;
@@ -162,7 +162,8 @@ export default (props) => {
             channel = await SkyWayChannel.FindOrCreate(context, {
                 name: roomId,
             });
-            person = await channel.join({}); // ページ毎に Channel, Member はありに。。
+            person = await channel.join({name:MyInfo+","+window.navigator.userAgent});
+
             addStatus("Joined:" + roomId);
         };
         await startListen();
