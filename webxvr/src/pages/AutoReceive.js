@@ -136,7 +136,7 @@ export default (props) => {
             channel.onMemberLeft.add((e) => {
 //                addStatus("OnMemberLeft!",e);
                 console.log("on member left",e);
-                if (e.person.id === person.id) return;
+                if (e.member.id === person.id) return;
                 const remoteVideos = document.getElementById('auto-remote-streams');
 
                 const remoteVideo = remoteVideos.querySelector(

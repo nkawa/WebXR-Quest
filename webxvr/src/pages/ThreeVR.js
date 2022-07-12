@@ -66,7 +66,7 @@ export default (props) => {
       channel = await SkyWayChannel.FindOrCreate(context, {
         name: roomId,
       });
-      person = await channel.join({name:MyInfo+","+window.navigator.userAgent});
+      person = await channel.join({name:"VR,"+MyInfo+","+window.navigator.userAgent});
       addStatus("Joined:" + roomId);
 
       person.onStreamSubscribed.add(async ({ stream, subscription }) => {
