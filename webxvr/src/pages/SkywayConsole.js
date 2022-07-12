@@ -204,7 +204,7 @@ export default (props) => {
                             </tr>
                         </thead>
                         <tbody>
-                            {Publications.map((m)=> <TableRow {...m} ></TableRow>)}
+                            {Subscriptions.map((m)=> <TableRow {...m} ></TableRow>)}
                         </tbody>
                     </Table>
                 </Row>

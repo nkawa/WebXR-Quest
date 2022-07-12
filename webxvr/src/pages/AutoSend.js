@@ -91,7 +91,8 @@ export default (props) => {
                         codecCapabilities: [{ mimeType: 'video/av1' }, { mimeType: 'video/h264' }], // コーデックが指定できる！
                         encodings: [
                             // 複数のパラメータをセットする
-                            { maxBitrate: 10_000, scaleResolutionDownBy: 8 },
+//                            { maxBitrate: 10_000, scaleResolutionDownBy: 8 },
+                            { maxBitrate: 40_000, scaleResolutionDownBy: 2 },  
                             { maxBitrate: 680_000, scaleResolutionDownBy: 1 },
                           ],
                     }); // ここで publish

@@ -140,7 +140,7 @@ export default (props) => {
                 const remoteVideos = document.getElementById('auto-remote-streams');
 
                 const remoteVideo = remoteVideos.querySelector(
-                    `[data-member-id="${e.person.id}"]`                    
+                    `[data-member-id="${e.member.id}"]`                    
                 );
                 if (remoteVideo){
                     const stream = remoteVideo.srcObject;
