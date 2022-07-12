@@ -107,7 +107,7 @@ export default (props) => {
 //            const geometry = new THREE.BoxGeometry();
 //            const material = new THREE.MeshBasicMaterial( { map: texture } );
             const sphere = new THREE.Mesh(geometry, material);
-            sphere.rotation.y += Math.PI/2;
+            sphere.rotation.y -= Math.PI/2;
 //            box.position.z = -3;
             scene.remove(box);
             scene.add(sphere);
