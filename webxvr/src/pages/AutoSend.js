@@ -16,7 +16,7 @@ import { SfuBotMember, SfuClientPlugin } from '@skyway-sdk/sfu-client';
 
 import TopNavi from '../components/TopNavi';
 
-import { SWTokenString, MyInfo } from '../skyway/skapp';
+import { SWTokenString, MyInfo,CltInfo } from '../skyway/skapp';
 
 let myVideo = null;
 let channel = null;
@@ -163,6 +163,7 @@ export default (props) => {
             channel = await SkyWayChannel.FindOrCreate(context, {
                 name: roomId,
             });
+            CltInfo("AutoSend");
             person = await channel.join({name:"Send,"+MyInfo+","+window.navigator.userAgent});
 
             addStatus("Joined:" + roomId);

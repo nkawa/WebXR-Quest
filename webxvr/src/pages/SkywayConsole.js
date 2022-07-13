@@ -18,7 +18,7 @@ import {
 import { SfuBotMember, SfuClientPlugin } from '@skyway-sdk/sfu-client';
 
 
-import { SWTokenString,MyInfo } from '../skyway/skapp';
+import { SWTokenString,MyInfo,CltInfo } from '../skyway/skapp';
 
 let channel = null;
 let person = null;
@@ -91,7 +91,7 @@ export default (props) => {
         });
 
 
-
+        CltInfo("Admin");
         person = await channel.join({name:"admin,"+MyInfo});
         console.log(context);
         console.log(channel);
@@ -125,7 +125,7 @@ export default (props) => {
 
     const TableRow = (props) => {
         console.log("Props",props);
-        const { i, id, name, type, status } = props;
+        const { i, id, name, type, status, action } = props;
 
         return (
             <tr>
@@ -134,9 +134,12 @@ export default (props) => {
                 <td>{name}</td>
                 <td>{type}</td>
                 <td>{status}</td>
-                <td><Button size="sm" onClick={()=>{
-                    console.log("Remove:"+id); doRemove(id)}
-                }>Remove</Button></td>
+                {(action=="remove")?
+                    <td><Button size="sm" onClick={()=>{
+                        console.log("Remove:"+id); doRemove(id)}
+                    }>{action}</Button></td>
+                 :<td></td>
+                }
             </tr>
         )
     }
@@ -164,7 +167,7 @@ export default (props) => {
                             </tr>
                         </thead>
                         <tbody>
-                            {ChannelInfo.map((m)=> <TableRow {...m} ></TableRow>)}
+                            {ChannelInfo.map((m)=> <TableRow {...m} action="Remove"></TableRow>)}
                         </tbody>
                     </Table>
                 </Row>

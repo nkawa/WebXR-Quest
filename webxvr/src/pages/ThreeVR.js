@@ -1,15 +1,8 @@
 import { useEffect, useState, useCallback } from 'react';
-import { WebXRButton } from '../vendor/util/webxr-button';
-import { Scene, WebXRView } from '../vendor/render/scenes/scene';
-import { Renderer, createWebGLContext } from '../vendor/render/core/renderer';
-//import {Gltf2Node} from '../vendor/render/nodes/gltf2.js';
-import { VideoboxNode } from '../vendor/render/nodes/videobox';
-import { InlineViewerHelper } from '../vendor/util/inline-viewer-helper';
-
 import * as THREE from 'three';
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 
-import { VideoNode } from '../vendor/render/nodes/video';
-//import {QueryArgs} from '../vendor/util/query-args.js';
+
 import './VR.css';
 
 import {
@@ -24,7 +17,7 @@ import {
 
 import { SfuBotMember, SfuClientPlugin } from '@skyway-sdk/sfu-client';
 
-import { SWTokenString , MyInfo} from '../skyway/skapp';
+import { SWTokenString , MyInfo, CltInfo} from '../skyway/skapp';
 import { VRButton } from "../vendor/three/VRButton.js"; 
 
 let scene = null;
@@ -66,6 +59,7 @@ export default (props) => {
       channel = await SkyWayChannel.FindOrCreate(context, {
         name: roomId,
       });
+      CltInfo("VR");
       person = await channel.join({name:"VR,"+MyInfo+","+window.navigator.userAgent});
       addStatus("Joined:" + roomId);
 
@@ -110,6 +104,7 @@ export default (props) => {
             sphere.rotation.y -= Math.PI/2;
 //            box.position.z = -3;
             scene.remove(box);
+
             scene.add(sphere);
             
 //            boxs = [];
@@ -177,7 +172,7 @@ export default (props) => {
 
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.xr.enabled = true; // レンダラーのXRを有効化
+//    renderer.xr.enabled = true; // レンダラーのXRを有効化
     document.body.appendChild(renderer.domElement);
 
     const directionalLight = new THREE.DirectionalLight("#ffffff", 1);
@@ -189,6 +184,8 @@ export default (props) => {
     box = new THREE.Mesh(geometry, material);
     box.position.z = -5;
     scene.add(box);
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.update();
 
     document.body.appendChild(VRButton.createButton(renderer));
 //    boxs.push(box);
@@ -197,7 +194,8 @@ export default (props) => {
         if (box){
             box.rotation.x += 0.01;
             box.rotation.y += 0.01;
-        }
+//            controls.update();
+          }
         renderer.render(scene, camera);
     }
     renderer.setAnimationLoop(animate);

@@ -1,7 +1,6 @@
 # WebXR-Quest
 Challenge to play with WebXR
 
-
 using 
 nodejs 16.16.0
 
@@ -9,8 +8,14 @@ with react, react-bootstrap 2.4.0, bootstrap 5.1.6
 
 2022/07/13 project by N.Kawaguchi.
 
+## Debug
+yarn start
+
+## Build
+yarn build
+and use under build directory.
 --
-# Setup
+## Setup
 
 You have to set-up following env-variables in '.env' file of webxvr subdir.
 
