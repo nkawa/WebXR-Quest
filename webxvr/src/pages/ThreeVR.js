@@ -199,9 +199,9 @@ export default (props) => {
             controls.update();
           }else{// vr mode
             
-            if (sphere){
-              sphere.rotation.y += 0.007;
-            }
+//            if (sphere){
+//              sphere.rotation.y += 0.007;
+//            }
           }
         renderer.render(scene, camera);
     }

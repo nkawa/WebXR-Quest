@@ -97,7 +97,8 @@ export default (props) => {
                         'data-member-id',
                         subscription.publication.publisher.id
                     );
-
+                    const novideo = document.getElementById('novideo');
+                    novideo.setAttribute("style", "visibility:hidden; height:0");
 
                     newVideo.autoplay = true;
                     remoteVideos.append(newVideo);
@@ -162,6 +163,9 @@ export default (props) => {
                     }
                     remoteVideo.srcObject = null;
                     remoteVideo.remove();
+                    const novideo = document.getElementById('novideo');
+                    novideo.setAttribute("style", "");
+
                 }else{
                     console.log("remove not working");
 //                    remoteVideos.innerHTML=null;
@@ -198,6 +202,9 @@ export default (props) => {
             <Container fluid>
                 <Row>
                     <div id="auto-remote-streams" style={{padding:0}}></div>
+                    <div id="novideo">
+                        <center> No Video yet. Sorry </center>
+                    </div>
                 </Row>
 {/*                <Row>
                     <Col>

@@ -167,7 +167,7 @@ export default (props) => {
                             </tr>
                         </thead>
                         <tbody>
-                            {ChannelInfo.map((m)=> <TableRow {...m} action="Remove"></TableRow>)}
+                            {ChannelInfo.map((m)=> <TableRow {...m} action="remove"></TableRow>)}
                         </tbody>
                     </Table>
                 </Row>
