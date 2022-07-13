@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
-import { Container, Row, Col } from 'react-bootstrap';
+import { Container, Row, Col, Button } from 'react-bootstrap';
 
 import {
     SkyWayChannel,
@@ -52,6 +52,14 @@ export default (props) => {
             newVideo.setAttribute("height", "" + window.innerHeight - 80);
         }
     }
+
+    const PlayVideo = useCallback(()=>{
+        console.log("Play",newVideo);
+        if (newVideo){
+            newVideo.play();
+        }
+
+    },[]);
     async function doit() {
 
         const remoteVideos = document.getElementById('auto-remote-streams');
@@ -79,6 +87,18 @@ export default (props) => {
 
             addStatus("Joined:" + roomId);
             console.log(person);
+
+            const startDelayVideo = ()=>{
+                if (newVideo){
+                    //     console.log("video",newVideo, newVideo.networkState);
+                         console.log("Check State", newVideo.readyState, newVideo.networkState);
+                         if (newVideo.readyState < 2){
+                            window.setTimeout(startDelayVideo,1000);
+                            return;
+                         }
+                         newVideo.play();
+                }
+            };
 
 
             let bot = channel.bots.find((b) => b.subtype === SfuBotMember.subtype);
@@ -114,6 +134,8 @@ export default (props) => {
                         SetUserVideo(nnVideo);// for React
                         stream.attach(newVideo);
 
+                        window.setTimeout(startDelayVideo,1000);
+
 
                         onResize();
 
@@ -126,6 +148,7 @@ export default (props) => {
                             if (novideo){
                                 novideo.setAttribute("style", "");
                             }
+                            newVideo = null;
                         });
 
                     } else {
@@ -213,6 +236,7 @@ export default (props) => {
             <TopNavi />
             <Container fluid>
                 <Row>
+{/*                    <Button id="playbutton" onClick={PlayVideo}> Play </Button> */}
                     <div id="auto-remote-streams" style={{ padding: 0 }}></div>
                     <div id="novideo">
                         <center> No Video yet. Sorry </center>

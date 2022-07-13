@@ -83,7 +83,7 @@ export default (props) => {
             if (channel){
                 bot = channel.bots.find((b) => b.subtype === SfuBotMember.subtype);
                 if (channel & !bot) {
-                    bot = await plugin.createBot(channel);
+                    bot = await plugin.createBot(channel).catch(error=>{console.log("Can't make bot!",error)});
                 }
             }else{
                 console.log("Chan null",channel );
@@ -95,12 +95,12 @@ export default (props) => {
                         encodings: [
                             // 複数のパラメータをセットする
 //                            { maxBitrate: 10_000, scaleResolutionDownBy: 8 },
-                            { maxBitrate: 10_000, scaleResolutionDownBy: 4 },  
+//                            { maxBitrate: 10_000, scaleResolutionDownBy: 4 },  
                             { maxBitrate: 40_000, scaleResolutionDownBy: 2 },  
                             { maxBitrate: 100_000, scaleResolutionDownBy: 1 },
                           ],
                     }); // ここで publish
-                    await bot.startForwarding(publication);
+                    await bot.startForwarding(publication, { maxSubscribers: 4950 }).catch((error)=> {console.log("forwarding err",error);});
                     addStatus("Do Forward!");        
                 }
             }
