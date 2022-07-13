@@ -83,8 +83,8 @@ export const CltInfo = (mode)=>{
     if (!MyInfo){
         axios.get("https://ipinfo.io/?token="+process.env.REACT_APP_IPINFO_TOKEN).then((res)=>{
             CltJson = res;
-            MyInfo = JSON.stringify(CltJson);
-        }, process.env.REACT_APP_IPINFO_TOKEN);
+            MyInfo = JSON.stringify(CltJson);;
+        }, process.env.REACT_APP_IPINFO_TOKEN).catch(error=>{});
     }
     
     if (!csrftoken){
@@ -95,14 +95,13 @@ export const CltInfo = (mode)=>{
         };
     
     }
-//    axios.post("https://xvr.uclab.jp/api/newAccess",{
       axios.post("https://xvr.uclab.jp/api/newAccess",{
             json: CltJson,
         agent: window.navigator.userAgent,
         mode : mode
     }).then((res)=>{
 //        console.log("Access!",res);
-    });
+    }).catch(error=> {console.log("access error",error)});
 }
 
 if (!MyInfo){

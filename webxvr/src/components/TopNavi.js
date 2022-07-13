@@ -23,7 +23,12 @@ export default (props) => {
                     <Nav.Link href="/#/autorecv"> Video </Nav.Link>
 
                 </Nav>
-            </Navbar.Collapse>
+                <Nav>
+                    <Nav.Link href="https://ucl.nuee.nagoya-u.ac.jp"> UCLab HP </Nav.Link>
+                    <Nav.Link href="https://www.youtube.com/channel/UCrf5seeEdvN-0XCEH5hTdfw"> YouTube Channel </Nav.Link>
+
+                </Nav>
+                </Navbar.Collapse>
             </Container>
         </Navbar>
     );
