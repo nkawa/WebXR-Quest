@@ -91,13 +91,13 @@ export default (props) => {
             if (bot){
                 if (!publication){
                     publication = await person.publish(myVideo,{
-                        codecCapabilities: [{ mimeType: 'video/av1' }, { mimeType: 'video/h264' }], // コーデックが指定できる！
+                        codecCapabilities: [{mimeType: 'video/webm; codecs="vp9, vp8"'}, { mimeType: 'video/av1' }, { mimeType: 'video/h264' }], // コーデックが指定できる！
                         encodings: [
                             // 複数のパラメータをセットする
 //                            { maxBitrate: 10_000, scaleResolutionDownBy: 8 },
 //                            { maxBitrate: 10_000, scaleResolutionDownBy: 4 },  
-                            { maxBitrate: 40_000, scaleResolutionDownBy: 2 },  
-                            { maxBitrate: 100_000, scaleResolutionDownBy: 1 },
+                            { maxBitrate: 5_000, scaleResolutionDownBy: 2 },  
+                            { maxBitrate: 10_000, scaleResolutionDownBy: 1 },
                           ],
                     }); // ここで publish
                     await bot.startForwarding(publication, { maxSubscribers: 4950 }).catch((error)=> {console.log("forwarding err",error);});
