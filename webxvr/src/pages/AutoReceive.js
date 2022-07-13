@@ -24,12 +24,12 @@ var newVideo = null;
 var person; // for local state..
 
 export default (props) => {
-    const [videoStatus, setVideoStatus] = useState("None");
+    const [videoStatus, setVideoStatus] = useState("");
     const [userVideo, SetUserVideo] = useState({});
-    console.log("re-rendar:autoecv:" + videoStatus);
+    console.log("re-rendar:autoecv:");
 
     const addStatus = useCallback((st) => {
-        const ss = videoStatus + "\n" + st;
+        const ss = st;
         console.log(ss);
         setVideoStatus(ss);
     }, [videoStatus]);
@@ -71,20 +71,20 @@ export default (props) => {
                 name: roomId,
             });
             //            person = await channel.join({});
-            CltInfo("AutoRecv");
-            person = channel.join(
+
+            person = await channel.join(
                 { name: "Recv," + MyInfo + "," + window.navigator.userAgent }
-            ).then(() => {
-                console.log("Joined!")
-            }).catch(error => console.log("Error"));
-            
+            ).catch(error => console.log("Error"));
+            CltInfo("AutoRecv", person.id);
+
             addStatus("Joined:" + roomId);
+            console.log(person);
+
 
             let bot = channel.bots.find((b) => b.subtype === SfuBotMember.subtype);
             if (!bot) {
-                bot = await plugin.createBot(channel);
+                bot = await plugin.createBot(channel).catch((error)=>console.log("Can't create bot:",error));
             }
-            if (person) {
 
                 // 新しいビデオが来たら
                 person.onStreamSubscribed.add(async ({ stream, subscription }) => {
@@ -122,6 +122,9 @@ export default (props) => {
                         subscription.onCanceled.add(() => {
                             remoteVideos.removeChild(newVideo);
                             delete userVideo[publisherId];
+                            const novideo = document.getElementById('novideo');
+                            novideo.setAttribute("style", "");
+    
                         });
 
                     } else {
@@ -192,7 +195,6 @@ export default (props) => {
                     });
                     channel.dispose();
                 });
-            }
 
         };
 
@@ -213,15 +215,6 @@ export default (props) => {
                         <center> No Video yet. Sorry </center>
                     </div>
                 </Row>
-                {/*                <Row>
-                    <Col>
-                        Logs:
-                        <pre>
-                            {videoStatus}
-                        </pre>
-                    </Col>
-                </Row>
-    */}
             </Container>
         </>
     );

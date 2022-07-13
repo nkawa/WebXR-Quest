@@ -60,6 +60,7 @@ export const SWTokenString = webxvrToken.encode(secretKey);
 
 export var MyInfo = null;
 export var CltJson = null;
+export var noIPInfo = false;
 
 var csrftoken= null;
 
@@ -78,13 +79,17 @@ export default function getCookie(name) {
     return cookieValue;
 }
 
-export const CltInfo = (mode)=>{
+export const CltInfo = (mode,id)=>{
     console.log("CltInfo:",mode);
-    if (!MyInfo){
+    if (!MyInfo && !noIPInfo){
         axios.get("https://ipinfo.io/?token="+process.env.REACT_APP_IPINFO_TOKEN).then((res)=>{
             CltJson = res;
             MyInfo = JSON.stringify(CltJson);;
-        }, process.env.REACT_APP_IPINFO_TOKEN).catch(error=>{});
+        }, process.env.REACT_APP_IPINFO_TOKEN
+        ).catch(error=>{
+//            console.log("IPInfo Error!!");
+            noIPInfo = true;
+        });
     }
     
     if (!csrftoken){
@@ -93,14 +98,21 @@ export const CltInfo = (mode)=>{
            'X-Requested-With': 'XMLHttpRequest',
             'X-CSRFToken': csrftoken
         };
-    
     }
-      axios.post("https://xvr.uclab.jp/api/newAccess",{
-            json: CltJson,
+    if (CltJson && !CltJson.id ){
+        CltJson.id = id;  // add ID to cltJson          
+    }
+    axios.post("https://xvr.uclab.jp/api/newAccess",{
+        json: CltJson,
         agent: window.navigator.userAgent,
         mode : mode
     }).then((res)=>{
 //        console.log("Access!",res);
+//        console.log("GotIP?",res);
+        if (CltJson== null){   
+            CltJson = res.data;
+            MyInfo = JSON.stringify(CltJson);
+        }
     }).catch(error=> {console.log("access error",error)});
 }
 

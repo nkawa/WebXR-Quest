@@ -49,7 +49,8 @@ export default (props) => {
         const ci = [];
         let n = 1;
         for (const m of channel.publications) {
-            ci.push(({i:n, id:m.id, name:m.label,type: m.contenttype, status:m.side}));
+            console.log(m);
+            ci.push(({i:n, id:m.id, name:m.publisherId,type: m.originId, status:m._status}));
             n++;
         }
 //        console.log(ci);
@@ -60,7 +61,8 @@ export default (props) => {
         const ci = [];
         let n = 1;
         for (const m of channel.subscriptions) {
-            ci.push(({i:n, id:m.id, name:m.label,type: m.contenttype, status:m.side}));
+            console.log(m);
+            ci.push(({i:n, id:m.id, name:m.subscriberId,type: m.publicationId, status:m._status}));
             n++;
         }
   //      console.log(ci);
@@ -91,8 +93,11 @@ export default (props) => {
         });
 
 
-        CltInfo("Admin");
-        person = await channel.join({name:"admin,"+MyInfo});
+        person = await channel.join({name:"admin,"+MyInfo}
+        ).catch((error)=>{
+            console.log("Can't join",error);
+        });
+        CltInfo("Admin", person.id);
         console.log(context);
         console.log(channel);
         console.log("Joined:", person);
@@ -124,7 +129,6 @@ export default (props) => {
     }
 
     const TableRow = (props) => {
-        console.log("Props",props);
         const { i, id, name, type, status, action } = props;
 
         return (
@@ -167,7 +171,7 @@ export default (props) => {
                             </tr>
                         </thead>
                         <tbody>
-                            {ChannelInfo.map((m)=> <TableRow {...m} action="remove"></TableRow>)}
+                            {ChannelInfo.map((m,i)=> <TableRow key={i} {...m} action="remove"></TableRow>)}
                         </tbody>
                     </Table>
                 </Row>
@@ -180,14 +184,14 @@ export default (props) => {
                             <tr>
                                 <th>#</th>
                                 <th>id</th>
-                                <th>name</th>
-                                <th>label</th>
+                                <th>publisher</th>
+                                <th>origin</th>
                                 <th>content</th>
                                 <th>side</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {Publications.map((m)=> <TableRow {...m} ></TableRow>)}
+                            {Publications.map((m,i)=> <TableRow key={i} {...m} ></TableRow>)}
                         </tbody>
                     </Table>
                 </Row>
@@ -200,14 +204,14 @@ export default (props) => {
                             <tr>
                                 <th>#</th>
                                 <th>id</th>
-                                <th>name</th>
-                                <th>type</th>
+                                <th>subscriber</th>
+                                <th>publicationId</th>
                                 <th>status</th>
                                 <th>action</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {Subscriptions.map((m)=> <TableRow {...m} ></TableRow>)}
+                            {Subscriptions.map((m,i)=> <TableRow key={i} {...m} ></TableRow>)}
                         </tbody>
                     </Table>
                 </Row>

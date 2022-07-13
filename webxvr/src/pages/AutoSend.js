@@ -24,7 +24,7 @@ let person = null;
 let publication = null;
 
 export default (props) => {
-    const [videoStatus, setVideoStatus] = useState("None");
+    const [videoStatus, setVideoStatus] = useState("");
     const [Cam, setCam] = useState("None");
     const [CamList, setCamList] = useState([]);
     const [CamRawList, setCamRawList] = useState([]);
@@ -55,14 +55,26 @@ export default (props) => {
         setCam(e.target.value);
     }, [Cam]);
     
+    const updateChannel =(media)=>{
+        console.log("Update Channel!");
+        if (!person && !channel){
+            let err = channel._updateMemberTtl(person,600);
+            console.log("Update?:",err);
+            window.setTimeout(()=>{
+                updateChannel();
+            },5000);
+        }
+    } 
     async function doVideo(media) {
         const localVideo = document.getElementById('js-local-stream');
 
         // 特定のカメラのケイパビリティを指定
         const capabi = {
             video: {
-                width:{min:640,ideal:1920,max:1920 },
-                height:{min:480,ideal:1080,max:1080}
+                width:{min:1920,ideal:1920,max:1920 },
+                height:{min:1080,ideal:1080,max:1080}
+//                width:{min:640,ideal:1920,max:1920 },
+//                height:{min:480,ideal:1080,max:1080}
             },
             deviceId: {
                 exact: media.id
@@ -92,16 +104,22 @@ export default (props) => {
                         encodings: [
                             // 複数のパラメータをセットする
 //                            { maxBitrate: 10_000, scaleResolutionDownBy: 8 },
-                            { maxBitrate: 40_000, scaleResolutionDownBy: 2 },  
+//                            { maxBitrate: 40_000, scaleResolutionDownBy: 2 },  
                             { maxBitrate: 680_000, scaleResolutionDownBy: 1 },
                           ],
                     }); // ここで publish
                     await bot.startForwarding(publication);
                     addStatus("Do Forward!");    
+                    window.setTimeout(()=>{
+                        console.log("Updated");
+                        updateChannel();
+                    },5000)
+        
                 }
             }
         }
     }
+
 
     const startCam = useCallback(async (e) => {
         console.log("Click", e.target);
@@ -132,6 +150,7 @@ export default (props) => {
             doVideo(media);
             console.log("in start Channel", channel);
             e.target.innerText = "Stop";
+            // need to keep alive?
         }
     }, [Cam, CamList, CamRawList]);
 
@@ -163,8 +182,8 @@ export default (props) => {
             channel = await SkyWayChannel.FindOrCreate(context, {
                 name: roomId,
             });
-            CltInfo("AutoSend");
             person = await channel.join({name:"Send,"+MyInfo+","+window.navigator.userAgent});
+            CltInfo("AutoSend", person.id);
 
             addStatus("Joined:" + roomId);
         };
