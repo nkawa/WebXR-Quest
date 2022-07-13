@@ -123,8 +123,9 @@ export default (props) => {
                             remoteVideos.removeChild(newVideo);
                             delete userVideo[publisherId];
                             const novideo = document.getElementById('novideo');
-                            novideo.setAttribute("style", "");
-    
+                            if (novideo){
+                                novideo.setAttribute("style", "");
+                            }
                         });
 
                     } else {
@@ -158,7 +159,6 @@ export default (props) => {
 
                 channel.onMemberLeft.add((e) => {
                     //                addStatus("OnMemberLeft!",e);
-                    console.log("on member left", e);
                     if (e.member.id === person.id) return;
                     const remoteVideos = document.getElementById('auto-remote-streams');
 
@@ -166,6 +166,7 @@ export default (props) => {
                         `[data-member-id="${e.member.id}"]`
                     );
                     if (remoteVideo) {
+                        console.log("camera left", e);
                         const stream = remoteVideo.srcObject;
                         if (stream) {
                             stream.getTracks().forEach((track) => track.stop());
@@ -173,10 +174,12 @@ export default (props) => {
                         remoteVideo.srcObject = null;
                         remoteVideo.remove();
                         const novideo = document.getElementById('novideo');
-                        novideo.setAttribute("style", "");
+                        if (novideo){
+                            novideo.setAttribute("style", "");
+                        }
 
                     } else {
-                        console.log("remove not working");
+                      //  console.log("remove not working");
                         //                    remoteVideos.innerHTML=null;
                     }
                 });
