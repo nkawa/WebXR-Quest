@@ -55,16 +55,7 @@ export default (props) => {
         setCam(e.target.value);
     }, [Cam]);
     
-    const updateChannel =(media)=>{
-        console.log("Update Channel!");
-        if (!person && !channel){
-            let err = channel._updateMemberTtl(person,600);
-            console.log("Update?:",err);
-            window.setTimeout(()=>{
-                updateChannel();
-            },5000);
-        }
-    } 
+
     async function doVideo(media) {
         const localVideo = document.getElementById('js-local-stream');
 
@@ -109,12 +100,7 @@ export default (props) => {
                           ],
                     }); // ここで publish
                     await bot.startForwarding(publication);
-                    addStatus("Do Forward!");    
-                    window.setTimeout(()=>{
-                        console.log("Updated");
-                        updateChannel();
-                    },5000)
-        
+                    addStatus("Do Forward!");        
                 }
             }
         }

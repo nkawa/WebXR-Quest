@@ -10,7 +10,7 @@ const secretKey = process.env.REACT_APP_SKYWAY_SECRETKEY;
 const webxvrTokenBase = {
     jti: uuidV4(),
     iat: Math.floor(Date.now() / 1000),
-    exp: Math.floor(Date.now() / 1000) + 600,
+    exp: Math.floor(Date.now() / 1000) + 14400,
     scope: {
         app: {
             id: appId,
