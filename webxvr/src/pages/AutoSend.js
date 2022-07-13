@@ -182,7 +182,8 @@ export default (props) => {
             channel = await SkyWayChannel.FindOrCreate(context, {
                 name: roomId,
             });
-            person = await channel.join({name:"Send,"+MyInfo+","+window.navigator.userAgent});
+            person = await channel.join({name:"Send,"+MyInfo+","+uuidV4()}
+            ).catch(error =>{console.log("Can't join",error)});
             CltInfo("AutoSend", person.id);
 
             addStatus("Joined:" + roomId);

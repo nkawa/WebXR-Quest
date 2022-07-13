@@ -56,14 +56,17 @@ export default (props) => {
   
     // Register join handler
     const startListen = async () => {
-      addStatus("Joining!" + roomId);
+//      addStatus("Joining!" + roomId);
       channel = await SkyWayChannel.FindOrCreate(context, {
         name: roomId,
       });
-      CltInfo("VR");
-      person = await channel.join({name:"VR,"+MyInfo+","+window.navigator.userAgent});
-      addStatus("Joined:" + roomId);
-
+      person = await channel.join(
+        {name:"VR,"+MyInfo+","+ uuidV4() } 
+      ).catch(error=>{console.log("Can't join",error)})
+      // unique name
+//      addStatus("Joined:" + roomId);
+      CltInfo("VR",person.id);
+      
       person.onStreamSubscribed.add(async ({ stream, subscription }) => {
         const publisherId = subscription.publication.origin.publisher.id;
         if (stream instanceof RemoteDataStream) {

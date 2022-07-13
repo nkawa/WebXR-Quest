@@ -73,8 +73,8 @@ export default (props) => {
             //            person = await channel.join({});
 
             person = await channel.join(
-                { name: "Recv," + MyInfo + "," + window.navigator.userAgent }
-            ).catch(error => console.log("Error"));
+                { name: "Recv," + MyInfo + ","+uuidV4() } // unique name
+            ).catch(error => console.log("Can't join",error));
             CltInfo("AutoRecv", person.id);
 
             addStatus("Joined:" + roomId);
