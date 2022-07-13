@@ -88,10 +88,10 @@ export const CltInfo = (mode)=>{
     }
     
     if (!csrftoken){
-//        csrftoken = getCookie('csrftoken');
+        csrftoken = getCookie('csrftoken');
         axios.defaults.headers.common = {
            'X-Requested-With': 'XMLHttpRequest',
-//            'X-CSRFToken': csrftoken
+            'X-CSRFToken': csrftoken
         };
     
     }
