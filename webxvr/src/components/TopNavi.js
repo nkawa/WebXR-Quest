@@ -15,11 +15,12 @@ export default (props) => {
                     <Nav.Link href="/#/autovr"> AutoVR </Nav.Link>
                     <Nav.Link href="/#/skyway"> Skyway </Nav.Link>
                     <Nav.Link href="/#/admin"> Admin </Nav.Link>
-    */}
-                    <Nav.Link href="/#/threevr"> ThreeVR </Nav.Link>
                     <Nav.Link href="/#/swrecv"> Recv </Nav.Link>
                     <Nav.Link href="/#/autosend"> AutoSend </Nav.Link>
-                    <Nav.Link href="/#/autorecv"> AutoRecv </Nav.Link>
+    */}
+                    <Nav.Link href="/#/home"> Home </Nav.Link>
+                    <Nav.Link href="/#/threevr"> WithVR </Nav.Link>
+                    <Nav.Link href="/#/autorecv"> Video </Nav.Link>
 
                 </Nav>
             </Navbar.Collapse>

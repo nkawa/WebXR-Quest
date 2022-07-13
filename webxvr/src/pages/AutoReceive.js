@@ -19,6 +19,8 @@ import { SWTokenString , MyInfo,CltInfo} from '../skyway/skapp';
 
 const tokenString =SWTokenString;
 
+var newVideo = null;
+
 var person; // for local state..
 
 export default (props) => {
@@ -35,6 +37,7 @@ export default (props) => {
 
     useEffect(() => {
         doit();
+        window.addEventListener('resize', onResize);
         return (async () => {
             console.log("Leave AutoReceive",person);
             if (person){
@@ -43,6 +46,12 @@ export default (props) => {
         });
     }, []);
 
+    function onResize() {
+        if (newVideo) {
+          newVideo.setAttribute("width", "" + window.innerWidth-10);
+          newVideo.setAttribute("height", "" + window.innerHeight-80);
+        }
+      }
     async function doit() {
 
         const remoteVideos = document.getElementById('auto-remote-streams');
@@ -81,7 +90,7 @@ export default (props) => {
                 }
 
                 if (!userVideo[publisherId]) {// 新しいビデオ！
-                    const newVideo = document.createElement('video');
+                    newVideo = document.createElement('video');
                     newVideo.playsInline = true;
                     // mark peerId to find it later at peerLeave event
                     newVideo.setAttribute(
@@ -97,6 +106,10 @@ export default (props) => {
                     nnVideo[publisherId] = newVideo;
                     SetUserVideo(nnVideo);// for React
                     stream.attach(newVideo);
+
+
+                    onResize();
+                  
 
                     // キャンセルされたら、エレメントを消す
                     subscription.onCanceled.add(()=>{
@@ -182,11 +195,11 @@ export default (props) => {
 
         <>
             <TopNavi />
-            <Container>
+            <Container fluid>
                 <Row>
-                    <div id="auto-remote-streams"></div>
+                    <div id="auto-remote-streams" style={{padding:0}}></div>
                 </Row>
-                <Row>
+{/*                <Row>
                     <Col>
                         Logs:
                         <pre>
@@ -194,6 +207,7 @@ export default (props) => {
                         </pre>
                     </Col>
                 </Row>
+    */}
             </Container>
         </>
     );

@@ -8,10 +8,12 @@ export default (props)=>{
 return (
     <>
     <TopNavi />
-
-    　　　ようこそ Web XVR の世界へ！ by 名古屋大 UCLab
-
-　　　　　<center>  VR で見るには「ThreeVR」を選択 ↑</center>
+    <br />
+    　　　ようこそ Web XVR の世界へ！
+    <br />
+    <center>  VR で見るには「WithVR」を選択 ↑</center>
+    <br />
+    <center>  ブラウザで見るには「Video」を選択 ↑</center>
 
     </>
 );

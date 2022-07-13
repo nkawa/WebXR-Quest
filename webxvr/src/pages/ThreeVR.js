@@ -34,6 +34,7 @@ let xrButton = null;
 
 let box=null;
 let myip = null;
+let sphere = null;
 
 export default (props) => {
   // XR globals.
@@ -95,15 +96,16 @@ export default (props) => {
 //            const parameters = {color: 0xffffff, map: texture};
 
             const geometry = new THREE.SphereGeometry(500, 60, 40);
-		    geometry.applyMatrix4(new THREE.Matrix4().makeScale(-1, 1, 1));
+		        geometry.applyMatrix4(new THREE.Matrix4().makeScale(-1, 1, 1));
             const material = new THREE.MeshBasicMaterial({ map: texture });
     
 //            const geometry = new THREE.BoxGeometry();
 //            const material = new THREE.MeshBasicMaterial( { map: texture } );
-            const sphere = new THREE.Mesh(geometry, material);
+            sphere = new THREE.Mesh(geometry, material);
             sphere.rotation.y -= Math.PI/2;
 //            box.position.z = -3;
             scene.remove(box);
+            box = null;
 
             scene.add(sphere);
             
@@ -172,7 +174,7 @@ export default (props) => {
 
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
-//    renderer.xr.enabled = true; // レンダラーのXRを有効化
+    renderer.xr.enabled = true; // レンダラーのXRを有効化
     document.body.appendChild(renderer.domElement);
 
     const directionalLight = new THREE.DirectionalLight("#ffffff", 1);
@@ -194,7 +196,12 @@ export default (props) => {
         if (box){
             box.rotation.x += 0.01;
             box.rotation.y += 0.01;
-//            controls.update();
+            controls.update();
+          }else{// vr mode
+            
+            if (sphere){
+              sphere.rotation.y += 0.007;
+            }
           }
         renderer.render(scene, camera);
     }
