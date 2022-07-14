@@ -92,12 +92,14 @@ export default (props) => {
             setSubscriptions();
         });
 
-
-        person = await channel.join({name:"admin,"+MyInfo}
+        person = null;
+        person = await channel.join({name:"admin,"+MyInfo+","+uuidV4()}
         ).catch((error)=>{
             console.log("Can't join",error);
         });
-        CltInfo("Admin", person.id);
+        if (person) {
+            CltInfo("Admin", person.id);
+        }
         console.log(context);
         console.log(channel);
         console.log("Joined:", person);
