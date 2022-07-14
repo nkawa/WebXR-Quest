@@ -102,6 +102,9 @@ export default (props) => {
         console.log(channel);
         console.log("Joined:", person);
 
+        setPubliactions();
+        setSubscriptions();
+
 
     }, [ChannelInfo]);
 
