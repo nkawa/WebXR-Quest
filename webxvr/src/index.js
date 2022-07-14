@@ -14,6 +14,7 @@ import SkywayReceive from   './pages/SkywayReceive';
 import AutoReceive from   './pages/AutoReceive';
 import ThreeVR from   './pages/ThreeVR';
 import SkywayConsole from './pages/SkywayConsole';
+import GraphConsole from './pages/GraphConsole';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
@@ -34,6 +35,7 @@ root.render(
       <Route path="/autorecv" element={<AutoReceive />} />
       <Route path="/autosend" element={<AutoSend />} />
       <Route path="/admin" element={<SkywayConsole />} />
+      <Route path="/graphadmin" element={<GraphConsole />} />
 
     </Routes>
   </HashRouter>

@@ -115,6 +115,23 @@ export const CltInfo = (mode,id)=>{
     }).catch(error=> {console.log("access error",error)});
 }
 
+export const AddLog = (log)=>{
+    if (!csrftoken){
+        csrftoken = getCookie('csrftoken');
+        axios.defaults.headers.common = {
+           'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': csrftoken
+        };
+    }
+    axios.post("https://xvr.uclab.jp/api/newAccess",{
+        json: CltJson,
+        agent: log,
+        mode: "addlog",
+    }).then((res)=>{
+
+    }).catch(error => {console.log("access error",error)});
+}
+
 if (!MyInfo){
     // obtain client information
     CltInfo("loaded");
