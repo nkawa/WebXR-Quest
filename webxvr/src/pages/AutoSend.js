@@ -96,8 +96,8 @@ export default (props) => {
                             // 複数のパラメータをセットする
 //                            { maxBitrate: 10_000, scaleResolutionDownBy: 8 },
 //                            { maxBitrate: 10_000, scaleResolutionDownBy: 4 },  
-                            { maxBitrate: 5_000, scaleResolutionDownBy: 2 },  
-                            { maxBitrate: 10_000, scaleResolutionDownBy: 1 },
+                            { maxBitrate: 40_000, scaleResolutionDownBy: 2 },  
+                            { maxBitrate: 200_000, scaleResolutionDownBy: 1 },
                           ],
                     }); // ここで publish
                     await bot.startForwarding(publication, { maxSubscribers: 4950 }).catch((error)=> {console.log("forwarding err",error);});

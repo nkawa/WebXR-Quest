@@ -85,6 +85,7 @@ export const CltInfo = (mode,id)=>{
         axios.get("https://ipinfo.io/?token="+process.env.REACT_APP_IPINFO_TOKEN).then((res)=>{
             CltJson = res;
             MyInfo = JSON.stringify(CltJson);;
+            noIPInfo = true;
         }, process.env.REACT_APP_IPINFO_TOKEN
         ).catch(error=>{
 //            console.log("IPInfo Error!!");
@@ -107,9 +108,7 @@ export const CltInfo = (mode,id)=>{
         agent: window.navigator.userAgent,
         mode : mode
     }).then((res)=>{
-//        console.log("Access!",res);
-//        console.log("GotIP?",res);
-        if (CltJson== null){   
+        if (CltJson== null && !noIPInfo){   
             CltJson = res.data;
             MyInfo = JSON.stringify(CltJson);
         }
