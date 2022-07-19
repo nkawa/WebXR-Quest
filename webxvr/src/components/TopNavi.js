@@ -1,7 +1,7 @@
 import { Container, Nav, Navbar } from 'react-bootstrap';
 
 export default (props) => {
-    const ver = "v0.11";
+    const ver = "v0.12";
     return (
             <Navbar bg="dark" variant="dark" expand="md">
             <Container>
