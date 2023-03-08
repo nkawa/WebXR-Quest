@@ -7,12 +7,15 @@ import {
     RemoteVideoStream,
     SkyWayAuthToken,
     SkyWayContext,
-    SkyWayMediaDevices,
+//    SkyWayMediaDevices,
+    SkyWayStreamFactory,    
     uuidV4,
     LocalVideoStream,
 } from '@skyway-sdk/core';
 
-import { SfuBotMember, SfuClientPlugin } from '@skyway-sdk/sfu-client';
+//import { SfuBotMember, SfuClientPlugin } from '@skyway-sdk/sfu-client';
+
+import { SfuBotMember, SfuBotPlugin } from '@skyway-sdk/sfu-bot';
 
 import TopNavi from '../components/TopNavi';
 import { SWTokenString, MyInfo, CltInfo } from '../skyway/skapp';
@@ -70,8 +73,11 @@ export default (props) => {
         const context = await SkyWayContext.Create(tokenString, {
             logLevel: 'debug',
         });
-        const plugin = new SfuClientPlugin();
-        context.registerPlugin(plugin);
+	//        const plugin = new SfuClientPlugin();
+	const plugin = new SfuBotPlugin();	
+	context.registerPlugin(plugin);
+
+	
         // Register join handler
         const startListen = async () => {
             addStatus("Joining!" + roomId);
@@ -81,17 +87,17 @@ export default (props) => {
             //            person = await channel.join({});
 
             person = await channel.join(
-                { name: "Recv," + MyInfo + ","+uuidV4() } // unique name
+                {memberInit:{ name: "Recv," + MyInfo + ","+uuidV4() } }// unique name
             ).catch(error => console.log("Can't join",error));
             CltInfo("AutoRecv", person.id);
 
             addStatus("Joined:" + roomId);
-            console.log(person);
+            console.log("joined person:",person);
 
             const startDelayVideo = ()=>{
                 if (newVideo){
                     //     console.log("video",newVideo, newVideo.networkState);
-                         console.log("Check State", newVideo.readyState, newVideo.networkState);
+                         console.log("Check State:", newVideo.readyState, newVideo.networkState);
                          if (newVideo.readyState < 2){
                             window.setTimeout(startDelayVideo,1000);
                             return;
@@ -102,12 +108,14 @@ export default (props) => {
 
 
             let bot = channel.bots.find((b) => b.subtype === SfuBotMember.subtype);
+	    console.log("Got Bot!", bot)
             if (!bot) {
                 bot = await plugin.createBot(channel).catch((error)=>console.log("Can't create bot:",error));
             }
+		
 
                 // 新しいビデオが来たら
-                person.onStreamSubscribed.add(async ({ stream, subscription }) => {
+                person.onPublicationSubscribed.add(async ({ stream, subscription }) => {
                     const publisherId = subscription.publication.origin.publisher.id;
                     console.log(stream, subscription);
                     addStatus("OnStream:");
@@ -118,6 +126,9 @@ export default (props) => {
                     if (!userVideo[publisherId]) {// 新しいビデオ！
                         newVideo = document.createElement('video');
                         newVideo.playsInline = true;
+                        newVideo.muted = true;			
+	
+			
                         // mark peerId to find it later at peerLeave event
                         newVideo.setAttribute(
                             'data-member-id',
@@ -158,7 +169,7 @@ export default (props) => {
 
                 });
 
-                person.onSubscriptionChanged.add(() => {
+                person.onSubscriptionListChanged.add(() => {
                     console.log("Subscription Changed:");
                     console.log(person.subscriptions);
                 });

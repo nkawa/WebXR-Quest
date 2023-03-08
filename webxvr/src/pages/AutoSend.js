@@ -3,16 +3,22 @@ import { Container, Row, Col, Form, Button } from 'react-bootstrap';
 
 import {
     SkyWayChannel,
+    SkyWayRoom,    
     RemoteDataStream,
     RemoteVideoStream,
     SkyWayAuthToken,
     SkyWayContext,
-    SkyWayMediaDevices,
+    SkyWayStreamFactory,
+//    SkyWayMediaDevices,
     uuidV4,
     LocalVideoStream,
-} from '@skyway-sdk/core';
 
-import { SfuBotMember, SfuClientPlugin } from '@skyway-sdk/sfu-client';
+} from '@skyway-sdk/core';
+//} from '@skyway-sdk/room';
+
+//import { SfuBotMember, SfuClientPlugin } from '@skyway-sdk/sfu-client';
+
+import { SfuBotPlugin } from '@skyway-sdk/sfu-bot';
 
 import TopNavi from '../components/TopNavi';
 
@@ -23,6 +29,8 @@ let channel = null;
 let person = null;
 let publication = null;
 
+let plugin = null;
+
 export default (props) => {
     const [videoStatus, setVideoStatus] = useState("");
     const [Cam, setCam] = useState("None");
@@ -30,6 +38,13 @@ export default (props) => {
     const [CamRawList, setCamRawList] = useState([]);
 
     console.log("re-rendar:autoSend:" + videoStatus);
+
+
+    if (plugin == null){
+	plugin = new SfuBotPlugin();
+	console.log("Now plugin is ", plugin)	
+    }
+
 
     const addStatus = useCallback((st) => {
         const ss = videoStatus + "\n" + st;
@@ -54,10 +69,12 @@ export default (props) => {
         console.log("OnChange Select:", e.target.value, Cam);
         setCam(e.target.value);
     }, [Cam]);
-    
+
 
     async function doVideo(media) {
         const localVideo = document.getElementById('js-local-stream');
+        localVideo.muted = true;
+        localVideo.playsInline = true;
 
         // 特定のカメラのケイパビリティを指定
         const capabi = {
@@ -72,23 +89,30 @@ export default (props) => {
             }
         };
 
-        myVideo = await SkyWayMediaDevices.createCameraVideoStream(capabi);
+	//        myVideo = await SkyWayMediaDevices.createCameraVideoStream(capabi);
+	myVideo = await SkyWayStreamFactory.createCameraVideoStream();
+	
         myVideo.attach(localVideo);
         localVideo.play().catch(console.error);
         console.log("Attached", localVideo);
-        addStatus("Working!");
+        addStatus("Working-attached!");
 
         { // チャンネル (join していないと動かない)
             let bot = null;
             if (channel){
-                bot = channel.bots.find((b) => b.subtype === SfuBotMember.subtype);
-                if (channel & !bot) {
-                    bot = await plugin.createBot(channel).catch(error=>{console.log("Can't make bot!",error)});
-                }
+		console.log("Try to create bot");
+//                bot = channel.bots.find((b) => b.subtype === SfuBotMember.subtype);
+//                if (channel & !bot) {
+//                    bot = await plugin.createBot(channel).catch(error=>{console.log("Can't make bot!",error)});
+//		    console.log("OK for Bot!!!");
+		//                }
+		console.log("Create bot: ", plugin);
+		bot = await plugin.createBot(channel);
             }else{
                 console.log("Chan null",channel );
             }
             if (bot){
+		console.log("Bot created!",bot);
                 if (!publication){
                     publication = await person.publish(myVideo,{
                         codecCapabilities: [{mimeType: 'video/webm; codecs="vp9, vp8"'}, { mimeType: 'video/av1' }, { mimeType: 'video/h264' }], // コーデックが指定できる！
@@ -100,12 +124,14 @@ export default (props) => {
                             { maxBitrate: 680_000, scaleResolutionDownBy: 1 },
                           ],
                     }); // ここで publish
-                    await bot.startForwarding(publication, { maxSubscribers: 4950 }).catch((error)=> {console.log("forwarding err",error);});
+		    console.log("Publish start!");
+                    await bot.startForwarding(publication, { maxSubscribers: 99 }).catch((error)=> {console.log("forwarding err",error);});
                     addStatus("Do Forward!");        
                 }
             }
         }
     }
+
 
 
     const startCam = useCallback(async (e) => {
@@ -141,13 +167,20 @@ export default (props) => {
         }
     }, [Cam, CamList, CamRawList]);
 
-    const plugin = new SfuClientPlugin();
+    //    const plugin = new SfuClientPlugin();
 
     async function doit() {
         const roomId = "uclab-xvr";
         console.log("doit:autoSend");
+	const context = await SkyWayContext.Create(SWTokenString, {
+            logLevel: 'debug',
+	});
+	context.registerPlugin(plugin);
+	console.log("Plugin registered");
+    
 
-        const devs = await SkyWayMediaDevices.enumerateInputVideoDevices();
+//        const devs = await SkyWayMediaDevices.enumerateInputVideoDevices();
+        const devs = await SkyWayStreamFactory.enumerateInputVideoDevices();		
         console.log("VideoDevs", devs);
         const cm = [];
         devs.map((md) => {
@@ -157,10 +190,6 @@ export default (props) => {
         setCam(cm[0]); //　ここで、設定してあるカメラを選べるとベスト！
         setCamRawList(devs);
 
-        const context = await SkyWayContext.Create(SWTokenString, {
-            logLevel: 'debug',
-        });
-        context.registerPlugin(plugin);
       
 
         // Register join handler
@@ -169,9 +198,22 @@ export default (props) => {
             channel = await SkyWayChannel.FindOrCreate(context, {
                 name: roomId,
             });
-            person = await channel.join({name:"Send,"+MyInfo+","+uuidV4()}
+
+//            channel = await SkyWayRoom.FindOrCreate(context, {
+//		type: 'sfu',
+//                name: roomId,
+//            });
+
+	    person = await channel.join(
+		{
+		    memberInit:{
+			name:"Send,"+MyInfo+","+uuidV4()
+		    }
+
+		}
             ).catch(error =>{console.log("Can't join",error)});
             CltInfo("AutoSend", person.id);
+	    console.log("Start Person", person);
 
             addStatus("Joined:" + roomId);
         };

@@ -10,12 +10,14 @@ import {
   RemoteDataStream,
   SkyWayAuthToken,
   SkyWayContext,
-  SkyWayMediaDevices,
+    //  SkyWayMediaDevices,
+    SkyWayStreamFactory,
   uuidV4,
   LocalVideoStream,
 } from '@skyway-sdk/core';
 
-import { SfuBotMember, SfuClientPlugin } from '@skyway-sdk/sfu-client';
+//import { SfuBotMember, SfuClientPlugin } from '@skyway-sdk/sfu-client';
+import { SfuBotMember, SfuBotPlugin } from '@skyway-sdk/sfu-bot';
 
 import { SWTokenString , MyInfo, CltInfo} from '../skyway/skapp';
 import { VRButton } from "../vendor/three/VRButton.js"; 
@@ -45,7 +47,7 @@ export default (props) => {
   const addStatus = useCallback((st) => {
     console.log("AddStatus:" + st);
   }, []);
-  const plugin = new SfuClientPlugin();
+  const plugin = new SfuBotPlugin();
 
   async function doit() {
     const roomId = "uclab-xvr";
@@ -60,21 +62,25 @@ export default (props) => {
       channel = await SkyWayChannel.FindOrCreate(context, {
         name: roomId,
       });
-      person = await channel.join(
-        {name:"VR,"+MyInfo+","+ uuidV4() } 
+	person = await channel.join(
+	    { memberInit:
+              {name:"VR,"+MyInfo+","+ uuidV4() }
+	    }
       ).catch(error=>{console.log("Can't join",error)})
       // unique name
 //      addStatus("Joined:" + roomId);
       CltInfo("VR",person.id);
       
-      person.onStreamSubscribed.add(async ({ stream, subscription }) => {
+	//      person.onStreamSubscribed.add(async ({ stream, subscription }) => {
+	person.onPublicationSubscribed.add(async ({ stream, subscription }) => {	
         const publisherId = subscription.publication.origin.publisher.id;
         if (stream instanceof RemoteDataStream) {
           return;
         }
         if (!userVideo[publisherId]) {// 新しいビデオ！
           newVideo = document.createElement('video');
-          newVideo.playsInline = true;
+            newVideo.playsInline = true;
+           newVideo.muted = true;	    
           // mark peerId to find it later at peerLeave event
           newVideo.setAttribute(
             'data-member-id',

@@ -6,6 +6,7 @@ import axios from "axios";
 
 const appId = process.env.REACT_APP_SKYWAY_APPID;
 const secretKey = process.env.REACT_APP_SKYWAY_SECRETKEY;
+const ipinfoToken = process.env.REACT_APP_IPINFO_TOKEN;
 
 const webxvrTokenBase = {
     jti: uuidV4(),
@@ -46,7 +47,10 @@ const webxvrTokenBase = {
     },
 };
 
+//console.log("Make WebXVR token")
 const webxvrToken = new SkyWayAuthToken(webxvrTokenBase);
+//console.log("Got WebXVR token", webxvrToken)
+
 export const SWTokenString = webxvrToken.encode(secretKey);
 
 
@@ -82,13 +86,13 @@ export default function getCookie(name) {
 export const CltInfo = (mode,id)=>{
     console.log("CltInfo:",mode);
     if (!MyInfo && !noIPInfo){
-        axios.get("https://ipinfo.io/?token="+process.env.REACT_APP_IPINFO_TOKEN).then((res)=>{
+        axios.get("https://ipinfo.io/?token="+ipinfoToken).then((res)=>{
             CltJson = res;
             MyInfo = JSON.stringify(CltJson);;
             noIPInfo = true;
         }, process.env.REACT_APP_IPINFO_TOKEN
         ).catch(error=>{
-//            console.log("IPInfo Error!!");
+            console.log("IPInfo Error!!");
             noIPInfo = true;
         });
     }
@@ -103,6 +107,9 @@ export const CltInfo = (mode,id)=>{
     if (CltJson && !CltJson.id ){
         CltJson.id = id;  // add ID to cltJson          
     }
+
+    // なんかデータベースでチェックする仕組みを作った記憶がある。。。
+/*    
     axios.post("https://xvr.uclab.jp/api/newAccess",{
         json: CltJson,
         agent: window.navigator.userAgent,
@@ -113,6 +120,7 @@ export const CltInfo = (mode,id)=>{
             MyInfo = JSON.stringify(CltJson);
         }
     }).catch(error=> {console.log("access error",error)});
+*/
 }
 
 export const AddLog = (log)=>{
@@ -123,6 +131,8 @@ export const AddLog = (log)=>{
             'X-CSRFToken': csrftoken
         };
     }
+
+/* stop logging 
     axios.post("https://xvr.uclab.jp/api/newAccess",{
         json: CltJson,
         agent: log,
@@ -130,6 +140,9 @@ export const AddLog = (log)=>{
     }).then((res)=>{
 
     }).catch(error => {console.log("access error",error)});
+*/
+    
+    
 }
 
 if (!MyInfo){

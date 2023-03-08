@@ -2,16 +2,19 @@ import { useEffect, useState, useCallback } from 'react';
 import { Container, Row, Col, Form, Button } from 'react-bootstrap';
 
 import {
-    SkyWayChannel,
+//    SkyWayChannel,
+    SkyWayRoom,    
     RemoteDataStream,
     RemoteVideoStream,
     SkyWayAuthToken,
     SkyWayContext,
-    SkyWayMediaDevices,
+    //    SkyWayMediaDevices,
+    SkyWayStreamFactory,
     uuidV4,
     LocalVideoStream,
     MemberImpl,
-} from '@skyway-sdk/core';
+//} from '@skyway-sdk/core';
+} from '@skyway-sdk/room';
 
 import { SfuBotMember, SfuClientPlugin } from '@skyway-sdk/sfu-client';
 
@@ -100,7 +103,8 @@ export default (props) => {
             }
         };
 
-        const video = await SkyWayMediaDevices.createCameraVideoStream(capabi);
+//        const video = await SkyWayMediaDevices.createCameraVideoStream(capabi);
+        const video = await SkyWayStreamFactory.createCameraVideoStream();//capabi);	
         SetCVideo(video); // LocalVideo
         console.log(video);
         video.attach(localVideo);
@@ -168,7 +172,7 @@ export default (props) => {
         const leaveTrigger = document.getElementById('js-leave-trigger');
         const remoteVideos = document.getElementById('js-remote-streams');
         const roomId = document.getElementById('js-room-id');
-
+        console.log("doit await:SkywayClient");
 
         const context = await SkyWayContext.Create(tokenString, {
             logLevel: 'debug',
@@ -193,8 +197,13 @@ export default (props) => {
 
 
         // カメラ一覧を取得
-        const devs = await SkyWayMediaDevices.enumerateInputVideoDevices();
+	//        const devs = await SkyWayMediaDevices.enumerateInputVideoDevices();
+        console.log("await doit get Videos");
+        const devs = await SkyWayStreamFactory.enumerateInputVideoDevices();
+
         console.log("VideoDevs", devs);
+
+	
         const cm = [];
         devs.map((md) => {
             cm.push(md.label);
@@ -206,11 +215,15 @@ export default (props) => {
 
         //        console.log("Videos", devs);
 
-        //      const { audio, video } =
-        //            await SkyWayMediaDevices.createMicrophoneAudioAndCameraStream();
+//         const { audio, video } =
+//               await SkyWayStreamFactory.createMicrophoneAudioAndCameraStream();
 
         localVideo.muted = true;
         localVideo.playsInline = true;
+
+//        video.attach(localVideo);
+//        console.log("video attached");
+	
         /*
         if (navigator.userAgent.indexOf("OculusBrowser") <= 0) {
             video.attach(localVideo);
@@ -228,10 +241,18 @@ export default (props) => {
 
         joinTrigger.addEventListener('click', async () => {
             addStatus("Joining!");
-            const channel = await SkyWayChannel.FindOrCreate(context, {
+
+//            const channel = await SkyWayChannel.FindOrCreate(context, {
+//                name: roomId.value,
+//            });
+
+            const channel = await SkyWayRoom.FindOrCreate(context, {
+		type: 'sfu',
                 name: roomId.value,
             });
 
+
+	    
             SetChan(channel);
             console.log("Set Skyway Channel!", channel);
 
